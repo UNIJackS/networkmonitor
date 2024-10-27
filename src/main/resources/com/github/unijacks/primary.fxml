@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+
+<?import javafx.scene.text.Font?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Slider?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.unijacks.PrimaryController" fx:id="mainBorderPane">
+   <left>
+      <VBox prefWidth="300">
+         <Label fx:id="infoHeaderLabel" text="Info" underline="True"/>
+         <Label fx:id="dateLabel" text="date ..."/>
+         <Label fx:id="timeLabel" text="time ..."/>
+      </VBox>
+
+      <padding>
+        <Insets bottom="0.0" left="20.0" right="20.0" top="0.0" />
+      </padding>
+   </left>
+
+
+   <right>
+      <VBox prefWidth="300">
+         <children>            
+            <Label fx:id="activityHeaderLabel" text="Activity" underline="True" alignment="CENTER"/>
+            <FlowPane fx:id="eventsFlowPane" vgap="20" hgap="20" prefWidth="240"/>
+         </children>
+         
+         <padding>
+            <Insets bottom="0.0" left="20.0" right="20.0" top="0.0" />
+         </padding>
+      </VBox>
+   </right>
+
+   <center>
+      <VBox>
+         <children>            
+            <Label fx:id="devicesHeaderLabel" text="Devices" underline="True" alignment="CENTER"/>
+            <FlowPane fx:id="devicesFlowPane" vgap="20" hgap="20"/>
+         </children>
+         
+         <padding>
+            <Insets bottom="0.0" left="20.0" right="20.0" top="0.0" />
+         </padding>
+      </VBox>
+   </center>
+
+   <bottom>
+      <HBox spacing="5">
+
+         <children>            
+            <Button fx:id="deviceLoadButton" text="Load Devices" onAction="#loadDevices"/>
+            <Button fx:id="devicePrintButton" text="Print Devices" onAction="#printDevices"/>
+            <Button fx:id="devicePingButton" text="Ping Devices" onAction="#pingDevices"/>
+
+            <Button fx:id="eventLoadButton" text="Load Events" onAction="#loadEvents"/>
+            <Button fx:id="eventPrintButton" text="Print Events" onAction="#printEvents"/>
+         </children>
+
+         <padding>
+            <Insets bottom="0.0" left="20.0" right="20.0" top="0.0" />
+         </padding>
+   
+      </HBox>
+
+   </bottom>
+
+</BorderPane>
+
+
