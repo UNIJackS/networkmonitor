@@ -9,8 +9,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.github.CustomStyle;
 import com.github.unijacks.Event.eventType;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -18,40 +22,57 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.VBox;
 
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 
 import java.util.Scanner;
+
+import javafx.scene.control.Button;
+
 
 
 
 public class Device implements Comparable<Device>{ 
-    public final static int CARD_CORNER_RADII = 10;
+    public final static int CARD_CORNER_RADII = 15;
 
-    private String strIP;          //Required 
-    private int intIP;
+    private String strIP = "IP not Set";          //Required 
+    private int intIP = 000000000000;
 
-    private String name = "not Set";        //Optional not Set by defualt
-    private String macAdress = "not Set";   //Optional not Set by defualt
+    private String name = "name not Set";        //Optional not Set by defualt
+    private String macAdress = "macAdress not Set";   //Optional not Set by defualt
 
     private statusEnum status = statusEnum.LOADING; //LOADING by default
 
-    //Assosiates each state with a color and name
+    //Assosiates each state with a color, action and name
     public enum statusEnum {
-        ONLINE("Online",CustomColor.online)
-        , LOADING("Loading...",CustomColor.loading)
-        , OFFLINE("Offline",CustomColor.offline)
-        , INVALIDIP("Invalid IP",CustomColor.invalidIP);
+        ONLINE("Online",CustomStyle.ONLINE_GREEN,"SSH")
+        , LOADING("Loading...",CustomStyle.LOADING_YELLOW,"N/A")
+        , OFFLINE("Offline",CustomStyle.OFFLINE_ORANGE,"Wake")
+        , INVALIDIP("Invalid IP",CustomStyle.INVALID_IP_PINK,"N/A");
     
         private Color color;
         private String description;
-        statusEnum(String description, Color color) {
+        private String action;
+        statusEnum(String description, Color color, String action) {
             this.description=description;
             this.color=color;
+            this.action=action;
         }
 
         public String getDesc() {return description;}
         public Color getColor() {return color;}
+        public String getAction() {
+            return action;
+        }
     }
 
     //Constructor
@@ -61,7 +82,6 @@ public class Device implements Comparable<Device>{
 
         if(!this.setIP(IP)){
             status = statusEnum.INVALIDIP;
-            this.strIP = null;
         }else{
             status = statusEnum.LOADING;
         }
@@ -78,9 +98,47 @@ public class Device implements Comparable<Device>{
             if(identifyer.equals("name")){name = value;}
             if(identifyer.equals("macAdress")){macAdress = value;}
         }
-        if(strIP == null){status = statusEnum.INVALIDIP;}
+        if(strIP.equals("000.000.000.000")){status = statusEnum.INVALIDIP;}
         lineScanner.close();
     }
+
+    private Button getActionButton(){
+        Button action = CustomStyle.cardColourButton(status.getAction(),CustomStyle.MAIN_TEXT_WHITE,70,30);
+
+        EventHandler<ActionEvent> actionEvent = new EventHandler<ActionEvent>() { 
+            public void handle(ActionEvent e) 
+            { 
+                switch (status) {
+                    case OFFLINE:
+                        wake();
+                        break;
+
+                    case ONLINE:
+                        ssh();
+                    break;
+                
+                    default:
+                        break;
+                }
+                
+            } 
+        };
+        action.setOnAction(actionEvent);
+        return action;
+    }
+
+    private Button getPingButton(){
+        Button pingButton = CustomStyle.cardColourButton("Ping",CustomStyle.MAIN_TEXT_WHITE,70,30);
+        EventHandler<ActionEvent> actionEvent = new EventHandler<ActionEvent>() { 
+            public void handle(ActionEvent e) 
+            { 
+                ping(); 
+            } 
+        };
+        pingButton.setOnAction(actionEvent);
+        return pingButton;
+    }
+
 
     //Getters
     public String getName(){return name;}
@@ -88,17 +146,33 @@ public class Device implements Comparable<Device>{
     public int getIntIP() {return intIP;}
 
 
-    public VBox getCard(){
-        Label fistLineLabel = new Label(name);
-        Label secondLineLabel = new Label(status.getDesc());
-        Label thirdLineLabel = new Label(this.strIP);   
+    private static Label styleLabel(String text){
+        Label output = new Label(text);
+        output.setFont(CustomStyle.CARD_FONT);
+        output.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
+        return output;
+    }
 
-        VBox output = new VBox(fistLineLabel,secondLineLabel,thirdLineLabel);
-        output.setPrefWidth(100);
-        output.setPrefHeight(50);
+    public HBox getCard(){
+        Label nameLabel = styleLabel(name);
+        Label ipLabel = styleLabel(this.strIP);
+        TilePane bottomRow = new TilePane(getActionButton(),getPingButton());
+        bottomRow.setHgap(15);
+        bottomRow.setPadding(new Insets(0,15,0,15));
+        VBox leftSide = new VBox(nameLabel,ipLabel,bottomRow);
+        leftSide.setAlignment(Pos.CENTER);
         
-        output.setBackground(new Background(new BackgroundFill(status.getColor(), new CornerRadii(CARD_CORNER_RADII), Insets.EMPTY)));
+        Button rightSide = CustomStyle.cardColourButton("", status.getColor(),30,75);
+        
+        HBox output = new HBox(leftSide,rightSide);
+
         output.setAlignment(Pos.CENTER);
+        output.setPadding(new Insets(0,5,0,5));
+
+        output.setPrefWidth(240);
+        output.setPrefHeight(105);        
+        output.setBackground(new Background(new BackgroundFill(CustomStyle.BACK_GROUND_GREY, new CornerRadii(CARD_CORNER_RADII), Insets.EMPTY)));
+        output.setBorder(new Border(new BorderStroke(Color.WHITE,BorderStrokeStyle.SOLID,new CornerRadii(CARD_CORNER_RADII),new BorderWidths(3))));
 
         return output;
     }
@@ -110,7 +184,7 @@ public class Device implements Comparable<Device>{
      * Returns true if sucessful
      * Returns false if malformed ip
      */
-    public boolean setIP(String newIP){
+    private boolean setIP(String newIP){
         if(newIP == null){
             status = statusEnum.INVALIDIP;
             return false;
@@ -155,6 +229,7 @@ public class Device implements Comparable<Device>{
         }
     }
 
+    @FXML
     public void ping(){
         if(status == statusEnum.INVALIDIP){return;}
         
@@ -177,6 +252,18 @@ public class Device implements Comparable<Device>{
         } 
     }
 
+    @FXML
+    public void wake(){
+        //send magic packet
+        System.out.println("Magic packet sent to : " + strIP);
+    }
+
+    @FXML
+    public void ssh(){
+        //run ssh script
+        System.out.println("SSH script run to : " + strIP);
+    }
+
     public String toString(){
         return "strIP : " +strIP+" | intIP : " + intIP +" | name: " + name + " | macAdress : " + macAdress;
     }
@@ -184,11 +271,9 @@ public class Device implements Comparable<Device>{
     //Interfaces 
 
     /*
-    * The higher the ID the higher rank.
+    * The higher the IP the higher rank.
      */
     public int compareTo(Device o) {
-
-
         if(this.intIP > o.intIP){
             return 1;
         }else if( this.intIP == o.intIP){

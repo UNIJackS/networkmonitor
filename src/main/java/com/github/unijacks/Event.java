@@ -9,6 +9,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import java.util.Scanner;
+
+import com.github.CustomStyle;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.BufferedWriter;
@@ -40,9 +43,9 @@ public class Event implements Comparable<Event>{
     private final static SimpleDateFormat FILE_NAME_DATE_FORMAT = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");  
 
     public enum eventType {
-        MAGIC_PACKET_SENT("Magic packet sent",CustomColor.magicPacket)
-        , WENT_OFFLINE("Device came online",CustomColor.offline)
-        , CAME_ONLINE("Device went offline",CustomColor.online);
+        MAGIC_PACKET_SENT("Magic packet sent",CustomStyle.MAGIC_PACKET_PURPLE)
+        , WENT_OFFLINE("Device came online",CustomStyle.OFFLINE_ORANGE)
+        , CAME_ONLINE("Device went offline",CustomStyle.ONLINE_GREEN);
 
         private Color color;
         private String description;
@@ -137,7 +140,7 @@ public class Event implements Comparable<Event>{
         return "ip|" +ip+"|type|" + type.name()+"|dateOccurred|" + HUMAN_DATE_FORMAT.format(dateOccurred);
     }
 
-    public final static int CARD_CORNER_RADII = 10;
+    public final static int CARD_CORNER_RADII = 15;
 
     public VBox getCard(Map<String,Device> devicesMap){
         Device deviceInvolved;

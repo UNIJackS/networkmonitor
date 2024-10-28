@@ -17,12 +17,14 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 
 import java.text.SimpleDateFormat;  
-import java.util.Date;  
+import java.util.Date;
+
+import com.github.CustomStyle;  
 
 
 public class PrimaryController {
     //Global static varables
-    public final static int UPDATE_PERIOD = 2; // Seconds
+    public final static int UPDATE_PERIOD = 5; // Seconds
     public final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");  
     public final static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");  
 
@@ -51,7 +53,7 @@ public class PrimaryController {
 
 
     public void initialize(){
-        mainBorderPane.setBackground(new Background(new BackgroundFill(CustomColor.mainBackround, CornerRadii.EMPTY, Insets.EMPTY)));
+        mainBorderPane.setBackground(new Background(new BackgroundFill(CustomStyle.BACK_GROUND_GREY, CornerRadii.EMPTY, Insets.EMPTY)));
         deviceManager.updateFlowPane(devicesFlowPane);
         eventManager.updateFlowPane(eventsFlowPane,deviceManager.getDevicesMap());
         setFonts();
@@ -61,17 +63,16 @@ public class PrimaryController {
     }
 
     private void setTextColor(){
-        dateLabel.setTextFill(CustomColor.mainText);
-        timeLabel.setTextFill(CustomColor.mainText);
-
-        infoHeaderLabel.setTextFill(CustomColor.mainText);
-        devicesHeaderLabel.setTextFill(CustomColor.mainText);
-        activityHeaderLabel.setTextFill(CustomColor.mainText);
+        dateLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
+        timeLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
+        infoHeaderLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
+        devicesHeaderLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
+        activityHeaderLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
     }
 
     private void setButtonColor(){
         CornerRadii buttonCornerRadii = new CornerRadii(5,5,0,0,false);
-        Background buttonBackground = new Background(new BackgroundFill(CustomColor.button, buttonCornerRadii, Insets.EMPTY));
+        Background buttonBackground = new Background(new BackgroundFill(CustomStyle.BUTTON_GREY, buttonCornerRadii, Insets.EMPTY));
         deviceLoadButton.setBackground(buttonBackground);
         devicePingButton.setBackground(buttonBackground);
         devicePrintButton.setBackground(buttonBackground);
@@ -82,14 +83,12 @@ public class PrimaryController {
 
     //Sets the font size of the headers and info labels
     private void setFonts(){
-        Font headerFont = new Font(30);
-        activityHeaderLabel.setFont(headerFont);
-        devicesHeaderLabel.setFont(headerFont);
-        infoHeaderLabel.setFont(headerFont);
+        activityHeaderLabel.setFont(CustomStyle.Header_FONT);
+        devicesHeaderLabel.setFont(CustomStyle.Header_FONT);
+        infoHeaderLabel.setFont(CustomStyle.Header_FONT);
 
-        Font infoFont = new Font(20);
-        dateLabel.setFont(infoFont);
-        timeLabel.setFont(infoFont);
+        dateLabel.setFont(CustomStyle.INFO_FONT);
+        timeLabel.setFont(CustomStyle.INFO_FONT);
     }
     
     // Pings devices and updates the time every UPDATE_PERIOD seconds.
@@ -98,8 +97,7 @@ public class PrimaryController {
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.seconds(UPDATE_PERIOD), e -> {
                 try {
-                    pingDevices();
-                    updateTime();
+                    update();
 
                 } catch (IOException e1) {
                     // TODO Auto-generated catch block
@@ -112,10 +110,17 @@ public class PrimaryController {
     }
 
     //Updatse the time and date labels to the current time and date.
-    private void updateTime(){
+    @FXML
+    private void update() throws IOException{
         Date date = new Date();
         dateLabel.setText(DATE_FORMAT.format(date));
         timeLabel.setText(TIME_FORMAT.format(date));
+
+        pingDevices();
+        loadEvents();
+
+        deviceManager.updateFlowPane(devicesFlowPane);
+        eventManager.updateFlowPane(eventsFlowPane, deviceManager.getDevicesMap());
     }
 
 
@@ -131,18 +136,13 @@ public class PrimaryController {
     private void printDevices() throws IOException {deviceManager.printAll();}
     //pings the loaded devices
     @FXML
-    private void pingDevices() throws IOException {
-        deviceManager.pingAll();
-        deviceManager.updateFlowPane(devicesFlowPane);
-        loadEvents();
-    }
+    private void pingDevices() throws IOException {deviceManager.pingAll();}
 
     //---------------- Event Manager Methods ----------------
     //Loads the events from the events directory.
     @FXML
-    private void loadEvents() throws IOException {
-        eventManager.loadFromFile();
-        eventManager.updateFlowPane(eventsFlowPane, deviceManager.getDevicesMap());
+    private void loadEvents() throws IOException {eventManager.loadFromFile();
+        
     }
     //Prints the loaded events
     @FXML
