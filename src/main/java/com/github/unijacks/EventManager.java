@@ -22,7 +22,7 @@ public class EventManager {
         //Clears the queue
         events = new PriorityQueue<>();
         //Makes sure the evnets folder exists
-        new File("/events").mkdir();
+        //new File("/home/jack/Desktop/events").mkdir();
         //Loads all the events from files.
         loadFromFile();
         System.out.println("Events loaded sucessfully");
@@ -49,6 +49,7 @@ public class EventManager {
     public void loadFromFile(){
         // Clears the devices set.
         events.clear();
+        ///home/jack/Desktop/events
         File evnentsDirectory = new File("events");
         File[] eventFiles = evnentsDirectory.listFiles(); 
         for(File currentFile : eventFiles){

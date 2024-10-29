@@ -17,14 +17,13 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 
 import java.text.SimpleDateFormat;  
-import java.util.Date;
-
-import com.github.CustomStyle;  
+import java.util.Date;  
 
 
 public class PrimaryController {
+    public final static boolean windows = true;
     //Global static varables
-    public final static int UPDATE_PERIOD = 5; // Seconds
+    public final static int UPDATE_PERIOD = 2; // Seconds
     public final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");  
     public final static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");  
 
@@ -53,13 +52,23 @@ public class PrimaryController {
 
 
     public void initialize(){
+        System.out.println("Intalising ... ");
+
         mainBorderPane.setBackground(new Background(new BackgroundFill(CustomStyle.BACK_GROUND_GREY, CornerRadii.EMPTY, Insets.EMPTY)));
+        System.out.println("Device manager flow pane loading ...");
         deviceManager.updateFlowPane(devicesFlowPane);
+        System.out.println("Device manager flow pane loaded sucessfuly");
+
+        System.out.println("Event manager flow pane loading ...");
         eventManager.updateFlowPane(eventsFlowPane,deviceManager.getDevicesMap());
+        System.out.println("Event manager flow pane loaded sucessfuly");
+
         setFonts();
         setTextColor();
         setButtonColor();
         startUpdateLoop();
+        System.out.println("Intalised sucessfully");
+
     }
 
     private void setTextColor(){

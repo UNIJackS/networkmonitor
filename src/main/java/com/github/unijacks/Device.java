@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import com.github.CustomStyle;
 import com.github.unijacks.Event.eventType;
 
 import javafx.event.ActionEvent;
@@ -33,58 +32,90 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 import java.util.Scanner;
 
 import javafx.scene.control.Button;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+import java.util.InputMismatchException;
+import java.util.NoSuchElementException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 
-public class Device implements Comparable<Device>{ 
-    public final static int CARD_CORNER_RADII = 15;
+public class Device implements Comparable<Device>{
+    public final static int PING_INTERVAL = 15000;
 
-    private String strIP = "IP not Set";          //Required 
-    private int intIP = 000000000000;
-
-    private String name = "name not Set";        //Optional not Set by defualt
-    private String macAdress = "macAdress not Set";   //Optional not Set by defualt
-
-    private statusEnum status = statusEnum.LOADING; //LOADING by default
-
-    //Assosiates each state with a color, action and name
-    public enum statusEnum {
-        ONLINE("Online",CustomStyle.ONLINE_GREEN,"SSH")
-        , LOADING("Loading...",CustomStyle.LOADING_YELLOW,"N/A")
-        , OFFLINE("Offline",CustomStyle.OFFLINE_ORANGE,"Wake")
-        , INVALIDIP("Invalid IP",CustomStyle.INVALID_IP_PINK,"N/A");
+    private String strIP;          //Required 
+    private int intIP;
+    private String name;        
+    private String macAdress;   
     
-        private Color color;
-        private String description;
-        private String action;
-        statusEnum(String description, Color color, String action) {
-            this.description=description;
-            this.color=color;
-            this.action=action;
-        }
-
-        public String getDesc() {return description;}
-        public Color getColor() {return color;}
-        public String getAction() {
-            return action;
-        }
-    }
+    private Date lastPingDate;
+    private DeviceStatus status;    
 
     //Constructor
     public Device(String IP,String name, String macAdress){
-        if(name != null) { this.name = name;}
-        if(macAdress != null) { this.macAdress = macAdress;}
+        setIP(IP);
+        if(name != null) {this.name = name;}
+        if(macAdress != null) {this.macAdress = macAdress;}
+    }
 
-        if(!this.setIP(IP)){
-            status = statusEnum.INVALIDIP;
+
+    private void setIP(String newIP){
+        if(verifyIP(newIP)){
+            strIP = newIP;
+            intIP = stripIP(newIP);
+            status = new DeviceStatus(DeviceStatus.statusEnum.LOADING, strIP);
         }else{
-            status = statusEnum.LOADING;
+            strIP = "Invalid IP";
+            intIP = 000000000000;
+            status = new DeviceStatus(DeviceStatus.statusEnum.INVALIDIP, strIP);
         }
+    }
+
+    /*
+     * Verifys an ip follows the correct format "000.000.000.000".
+     */
+    private static boolean verifyIP(String newIP){
+        if(newIP == null){return false;}
+
+        Scanner newIPScanner = new Scanner(newIP);
+        newIPScanner.useDelimiter(".");
+
+        List<Integer> numbersList = new ArrayList<>();
+        try {
+            while(newIPScanner.hasNext()){
+                int number = newIPScanner.nextInt();
+                System.out.println("number :" + number);
+                if(number > 255){
+                    newIPScanner.close();
+                    return false;
+                }
+                numbersList.add(newIPScanner.nextInt());
+            }
+        } catch (NoSuchElementException e) {
+            newIPScanner.close();
+            return false;
+        }
+        newIPScanner.close();
+
+        if(numbersList.size() != 4){return false;} 
+        return true;       
+    }
+
+    private int stripIP(String strIP){
+        String strippedIP = "";
+        for(int charIndex =0; charIndex < strIP.length(); charIndex +=1){
+            if(Character.isDigit(strIP.charAt(charIndex))){strippedIP += strIP.charAt(charIndex);}
+        }
+        return Integer.valueOf(strippedIP);
     }
 
     public Device(Scanner lineScanner){
@@ -98,7 +129,7 @@ public class Device implements Comparable<Device>{
             if(identifyer.equals("name")){name = value;}
             if(identifyer.equals("macAdress")){macAdress = value;}
         }
-        if(strIP.equals("000.000.000.000")){status = statusEnum.INVALIDIP;}
+        if(strIP.equals("000.000.000.000")){status.changeStatus(DeviceStatus.statusEnum.INVALIDIP);}
         lineScanner.close();
     }
 
@@ -108,7 +139,7 @@ public class Device implements Comparable<Device>{
         EventHandler<ActionEvent> actionEvent = new EventHandler<ActionEvent>() { 
             public void handle(ActionEvent e) 
             { 
-                switch (status) {
+                switch (status.getStatusEnum()) {
                     case OFFLINE:
                         wake();
                         break;
@@ -132,7 +163,7 @@ public class Device implements Comparable<Device>{
         EventHandler<ActionEvent> actionEvent = new EventHandler<ActionEvent>() { 
             public void handle(ActionEvent e) 
             { 
-                ping(); 
+                ping(true); 
             } 
         };
         pingButton.setOnAction(actionEvent);
@@ -145,111 +176,129 @@ public class Device implements Comparable<Device>{
     public String getStrIP() {return strIP;}
     public int getIntIP() {return intIP;}
 
-
-    private static Label styleLabel(String text){
-        Label output = new Label(text);
-        output.setFont(CustomStyle.CARD_FONT);
-        output.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
-        return output;
-    }
-
     public HBox getCard(){
-        Label nameLabel = styleLabel(name);
-        Label ipLabel = styleLabel(this.strIP);
+        Label nameLabel = CustomStyle.cardStyleLabel(name);
+        Label ipLabel = CustomStyle.cardStyleLabel(strIP);
+        Label lastPingDateLabel;
+        if(lastPingDate != null){
+            lastPingDateLabel = CustomStyle.cardStyleLabel(CustomStyle.PING_DATE_FORMAT.format(lastPingDate));
+        }else{
+            lastPingDateLabel = CustomStyle.cardStyleLabel("Last Ping : loading");
+        }
+         
         TilePane bottomRow = new TilePane(getActionButton(),getPingButton());
         bottomRow.setHgap(15);
-        bottomRow.setPadding(new Insets(0,15,0,15));
-        VBox leftSide = new VBox(nameLabel,ipLabel,bottomRow);
+        bottomRow.setPadding(new Insets(0,0,0,15));
+        
+        VBox leftSide = new VBox(nameLabel,ipLabel,lastPingDateLabel,bottomRow);
         leftSide.setAlignment(Pos.CENTER);
+        leftSide.setMaxWidth(200);
         
-        Button rightSide = CustomStyle.cardColourButton("", status.getColor(),30,75);
-        
+        Button rightSide = CustomStyle.cardColourButton("", status.getColor(),30,120);
         HBox output = new HBox(leftSide,rightSide);
+        
+        output.setAlignment(Pos.CENTER_LEFT);
+        output.setSpacing(5);
 
-        output.setAlignment(Pos.CENTER);
-        output.setPadding(new Insets(0,5,0,5));
-
-        output.setPrefWidth(240);
-        output.setPrefHeight(105);        
-        output.setBackground(new Background(new BackgroundFill(CustomStyle.BACK_GROUND_GREY, new CornerRadii(CARD_CORNER_RADII), Insets.EMPTY)));
-        output.setBorder(new Border(new BorderStroke(Color.WHITE,BorderStrokeStyle.SOLID,new CornerRadii(CARD_CORNER_RADII),new BorderWidths(3))));
+        output.setPrefWidth(245);
+        output.setPrefHeight(150);        
+        output.setBackground(new Background(new BackgroundFill(CustomStyle.BACK_GROUND_GREY, new CornerRadii(CustomStyle.CARD_CORNER_RADII), Insets.EMPTY)));
+        output.setBorder(new Border(new BorderStroke(Color.WHITE,BorderStrokeStyle.SOLID,new CornerRadii(CustomStyle.CARD_CORNER_RADII),new BorderWidths(3))));
 
         return output;
     }
 
-    //Setters
 
-    /*
-     * Attempts to set the ip of the device.
-     * Returns true if sucessful
-     * Returns false if malformed ip
-     */
-    private boolean setIP(String newIP){
-        if(newIP == null){
-            status = statusEnum.INVALIDIP;
-            return false;
-        }
-        //Used to make sure there are 3 "." dots.
-        int dotCount = 0;
-        //Used to make sure there are numbers between dots
-        int numberCount =0;
+    
+    // Sends a ping request to the device 
+    // Returns the string output 
+    private String sendPing(int numberToReccive, int timout,boolean windows){
+        String pingResult = "";
+        String pingCmd;
 
-        String stripedIP = ""; //IP with the dots stripped out.
-        for(int charIndex =0; charIndex < newIP.length(); charIndex +=1){
-            char currentChar = newIP.charAt(charIndex);
-            if(currentChar == '.'){
-                dotCount += 1;   
-                if(numberCount == 0){
-                    status = statusEnum.INVALIDIP;
-                    return false;
-                }
-                numberCount = 0;
-            }else if(Character.isDigit(currentChar)){
-                stripedIP += currentChar;
-                numberCount +=1;
-                //Make sure there are at most 3 numbers between dots
-                if(numberCount > 3){
-                    status = statusEnum.INVALIDIP;
-                    return false;
-                }
-            }else{
-                // Returns false if there is anything but numbers and '.'s.
-                status = statusEnum.INVALIDIP;
-                return false;
+        if(windows){pingCmd = "ping /n "+numberToReccive+ " /w "+ timout+ " " + strIP;
+        }else{pingCmd = "ping -c "+numberToReccive+ " -w "+ timout+ " " + strIP;}
+
+        try {
+            Runtime r = Runtime.getRuntime();
+            Process p = r.exec(pingCmd);
+
+            BufferedReader in = new BufferedReader(new
+            InputStreamReader(p.getInputStream()));
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                //System.out.println(inputLine);
+                pingResult += inputLine;
             }
+            in.close();
+            //System.out.println("pingResult : "+ pingResult);
+        
+        } catch (IOException e) {
+            System.out.println(e);
         }
 
-        // If there are 3 dots and the final char is a number then accept the ip
-        if(dotCount == 3 && Character.isDigit(newIP.charAt(newIP.length()-1))){
-            this.strIP = newIP;
-            this.intIP = Integer.valueOf(stripedIP);
-            return true;
-        }else{
-            return false;
-        }
+        return pingResult;
     }
 
-    @FXML
-    public void ping(){
-        if(status == statusEnum.INVALIDIP){return;}
-        
-        InetAddress geek;
-        try {
-            geek = InetAddress.getByName(strIP);
-            System.out.println("Sending Ping Request to " + strIP); 
-            if (geek.isReachable(200)){
-                new Event(eventType.CAME_ONLINE,new Date(),strIP);
-                //if(status == statusEnum.OFFLINE){}
-                status = statusEnum.ONLINE; 
+    private boolean checkPingResult(String pingResult,int numberToReccive,boolean windows){
+        Scanner outputScanner = new Scanner(pingResult);
+        String prevous = "";
+        while(outputScanner.hasNext()){
+            String current = outputScanner.next();
+            if(windows){
+                if(current.equals("Received")){
+                    outputScanner.next(); // Skips the equals
+                    if(outputScanner.next().equals(numberToReccive + ",")){
+                        outputScanner.close();
+                        return true;
+                    }else{
+                        outputScanner.close();
+                        return false;
+                    }
+                }
+
             }else{
-                if(status == statusEnum.ONLINE){new Event(eventType.WENT_OFFLINE,new Date(),strIP);}
-                status = statusEnum.OFFLINE;
+                if(current.equals("received")){
+                    if(prevous.equals(String.valueOf(numberToReccive))){
+                        outputScanner.close();
+                        return true;
+                    }else{
+                        outputScanner.close();
+                        return false;
+                    }
+                }
             }
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            status = statusEnum.LOADING;
-            e.printStackTrace();
-        } 
+            prevous = current;
+        }
+        outputScanner.close();
+        return false;
+    }
+
+
+
+    @FXML
+    public boolean ping(boolean ignoreCoolDown){
+        Date currentDate = new Date();
+        if(lastPingDate != null){
+            Date timeSinceLastPing = new Date(currentDate.getTime()-lastPingDate.getTime());
+            if(timeSinceLastPing.getTime() < PING_INTERVAL && !ignoreCoolDown){return false;}
+        }
+        lastPingDate = currentDate;
+
+        if(status.getStatusEnum() == DeviceStatus.statusEnum.INVALIDIP){return true;}
+
+        String pingResult = sendPing(1,1,PrimaryController.windows);
+
+        if(checkPingResult(pingResult, 1,PrimaryController.windows)){
+            //Could be reached so online
+            //System.out.println("checkPingResult : true");
+            status.changeStatus(DeviceStatus.statusEnum.ONLINE);
+        }else{
+            //Could not be reached so offline
+           // System.out.println("checkPingResult : false");
+            status.changeStatus(DeviceStatus.statusEnum.OFFLINE);
+        }
+        return true;
     }
 
     @FXML

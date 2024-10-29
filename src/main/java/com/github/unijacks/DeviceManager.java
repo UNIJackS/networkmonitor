@@ -17,7 +17,7 @@ public class DeviceManager {
     private Map<String, Device> devicesMap;
 
     public DeviceManager() {
-        System.out.println("Devices intalissation started");
+        System.out.println("Loading devices ...");
         // Intalises the priority queue
         devices = new PriorityQueue<>();
         // Loads all the devices into the priority queue from file
@@ -25,7 +25,7 @@ public class DeviceManager {
         // Loads all the devices from the priority queue into the map
         devicesMap = new HashMap<>();
 
-        System.out.println("Devices intalised sucessfully");
+        System.out.println("Devices loaded sucessfully");
     }
 
     public Map<String, Device> getDevicesMap() {
@@ -62,14 +62,12 @@ public class DeviceManager {
 
     // Loads the devices from the DeviceList.txt file.
     public void loadFromFile() {
-        System.out.println("load from file called");
         // Clears the devices set.
         devices.clear();
         // Creates a scanner from the DeviceList.txt file
         Scanner linesInFileScanner = readFile("DeviceList.txt");
         // Loops through the lines in the file.
         while (linesInFileScanner.hasNextLine()) {
-            System.out.println("while looped");
             String line = linesInFileScanner.nextLine(); // Gets the nextline from the DeviceList.txt file scanner
             devices.add(new Device(new Scanner(line)));
         }
@@ -87,7 +85,9 @@ public class DeviceManager {
         Queue<Device> devicesCopy = new PriorityQueue<>(devices);
         while (!devicesCopy.isEmpty()) {
             Device currentDevice = devicesCopy.poll();
-            currentDevice.ping();
+            if(currentDevice.ping(false)){
+                break;
+            }
         }
     }
 
