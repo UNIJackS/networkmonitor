@@ -32,9 +32,13 @@ public class CustomStyle {
 
 
     public final static Color ERROR_BLUE = Color.web("0984e3"); // Electron Blue - dark blue
+
     public final static Color ONLINE_GREEN = Color.web("00b894"); // Mint Green - dark green
-    public final static Color LOADING_YELLOW = Color.web("fdcb6e"); // Bright yellow - yellow
+    public final static Color UNREACHABLE_YELLOW = Color.web("fdcb6e"); // Bright yarrow - yellow
     public final static Color OFFLINE_ORANGE = Color.web("e17055"); // OrangeVille -  orange
+
+    public final static Color LOADING_GREY = Color.web("636e72"); // 
+
     public final static Color INVALID_IP_PINK = Color.web("e84393"); // Prunus Avium - Pink
     public final static Color MAGIC_PACKET_PURPLE = Color.web("6c5ce7"); // Exodius Fruit - purple
 

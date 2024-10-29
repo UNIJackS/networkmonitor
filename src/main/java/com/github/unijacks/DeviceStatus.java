@@ -7,8 +7,9 @@ import java.util.Date;
 public class DeviceStatus {
     public enum statusEnum {
         ONLINE
-        , LOADING
+        , UNREACHABLE
         , OFFLINE
+        , LOADING
         , INVALIDIP;
     }
 
@@ -28,28 +29,54 @@ public class DeviceStatus {
     public String getDesc(){return description;}
     public statusEnum getStatusEnum(){return status;}
 
-    public void changeStatus(statusEnum newStatus){
+    public boolean invalidIP(){return status == statusEnum.INVALIDIP;}
+
+    public void unsucessfulPing(){
+        switch (status) {
+            case LOADING:
+                changeStatus(statusEnum.UNREACHABLE);
+                break;
+
+            case ONLINE:
+                changeStatus(statusEnum.UNREACHABLE);
+                break;
+
+            case UNREACHABLE:
+                changeStatus(statusEnum.OFFLINE);
+                break;
+
+            case OFFLINE:
+                break;
+        
+            default:
+                break;
+        }
+    }
+
+    public void sucessfulPing(){
+        changeStatus(statusEnum.ONLINE);
+    }
+
+    private void changeStatus(statusEnum newStatus){
         switch (newStatus) {
             case ONLINE:
-                System.out.println("change to online started...");
-                System.out.println("current status : " + status.name());
-                if(status != statusEnum.ONLINE){
-                    System.out.println("created came online event");
-                    new Event(Event.eventType.CAME_ONLINE,new Date(),strIP);}
+                if(status != statusEnum.ONLINE){new Event(Event.eventType.CAME_ONLINE,new Date(),strIP);}
                 this.status = newStatus;
                 this.color = CustomStyle.ONLINE_GREEN;
                 this.description = "Online";
                 this.action = "SSH";
                 break;
 
+            case UNREACHABLE:
+                //if(status != statusEnum.UNREACHABLE){new Event(Event.eventType.WENT_OFFLINE,new Date(),strIP);}
+                this.status = newStatus;
+                this.color = CustomStyle.UNREACHABLE_YELLOW;
+                this.description = "Offline";
+                this.action = "Wake";
+                break;
+
             case OFFLINE:
-                System.out.println("change to offline started...");
-                System.out.println("current status : " + status.name());
-
-                if(status != statusEnum.OFFLINE){
-                    System.out.println("created went offline event");
-
-                    new Event(Event.eventType.WENT_OFFLINE,new Date(),strIP);}
+                if(status != statusEnum.OFFLINE){new Event(Event.eventType.WENT_OFFLINE,new Date(),strIP);}
                 this.status = newStatus;
                 this.color = CustomStyle.OFFLINE_ORANGE;
                 this.description = "Offline";
@@ -58,7 +85,7 @@ public class DeviceStatus {
 
             case LOADING:
                 this.status = newStatus;
-                this.color = CustomStyle.LOADING_YELLOW;
+                this.color = CustomStyle.LOADING_GREY;
                 this.description = "Loading...";
                 this.action = "N/A";
                 break;

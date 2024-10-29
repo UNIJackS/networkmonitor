@@ -41,39 +41,76 @@ import javafx.scene.control.Button;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
-
-public class Device implements Comparable<Device>{
+/*
+ * Represents a single device. Uniquily identifable by their IP.
+ */
+public class Device implements Comparable<Device> {
     public final static int PING_INTERVAL = 15000;
 
-    private String strIP;          //Required 
+    private String strIP; // Required
     private int intIP;
-    private String name;        
-    private String macAdress;   
-    
-    private Date lastPingDate;
-    private DeviceStatus status;    
+    private String name = "Name unset";
+    private String macAdress = "MAC address unset";
 
-    //Constructor
-    public Device(String IP,String name, String macAdress){
+    private Date lastPingDate;
+    private DeviceStatus status;
+
+    // ----------------------------------------- Constructors -----------------------------------------
+    // Used to create a new device not in the Devices.txt file.
+    public Device(String IP, String name, String macAdress) {
         setIP(IP);
-        if(name != null) {this.name = name;}
-        if(macAdress != null) {this.macAdress = macAdress;}
+        if (name != null) {
+            this.name = name;
+        }
+        if (macAdress != null) {
+            this.macAdress = macAdress;
+        }
     }
 
+    // used to load a device from a line in the Devices.txt file.
+    public Device(Scanner lineScanner) {
+        lineScanner.useDelimiter("\\|");
+        while (lineScanner.hasNext()) {
+            String identifyer = lineScanner.next();
+            // Prevents errors from an identifyer with no value
+            if (!lineScanner.hasNext()) {
+                break;
+            }
+            String value = lineScanner.next();
 
-    private void setIP(String newIP){
-        if(verifyIP(newIP)){
+            if (identifyer.equals("ip")) {
+                setIP(value);
+            }
+            if (identifyer.equals("name")) {
+                name = value;
+            }
+            if (identifyer.equals("macAdress")) {
+                macAdress = value;
+            }
+        }
+        lineScanner.close();
+    }
+
+    // ----------------------------------------- IP Methods -----------------------------------------
+    /*
+     * Attempts to set the ip of the Device to the new ip.
+     * If this is unsucessful then
+     * - strIP is set to "Invalid IP"
+     * - intIP is set to 000000000000
+     */
+    private void setIP(String newIP) {
+        if (verifyIP(newIP)) {
+            // If the new ip is valid then set it.
             strIP = newIP;
             intIP = stripIP(newIP);
             status = new DeviceStatus(DeviceStatus.statusEnum.LOADING, strIP);
-        }else{
+        } else {
+            // If the new ip is invalid then set the status to invalid ip.
             strIP = "Invalid IP";
             intIP = 000000000000;
             status = new DeviceStatus(DeviceStatus.statusEnum.INVALIDIP, strIP);
@@ -83,156 +120,183 @@ public class Device implements Comparable<Device>{
     /*
      * Verifys an ip follows the correct format "000.000.000.000".
      */
-    private static boolean verifyIP(String newIP){
-        if(newIP == null){return false;}
-
+    private static boolean verifyIP(String newIP) {
+        if (newIP == null) {
+            return false;
+        } // Checks the ip is not null.
         Scanner newIPScanner = new Scanner(newIP);
-        newIPScanner.useDelimiter(".");
-
-        List<Integer> numbersList = new ArrayList<>();
+        newIPScanner.useDelimiter("\\.");
+        List<Integer> numbersList = new ArrayList<>(); // Stores the numbers
         try {
-            while(newIPScanner.hasNext()){
+            // Loops through the new ip and reccords the numbers between the fullstops.
+            while (newIPScanner.hasNext()) {
                 int number = newIPScanner.nextInt();
-                System.out.println("number :" + number);
-                if(number > 255){
+                // Makes sure the numbers are less than 255
+                if (number > 255) {
                     newIPScanner.close();
                     return false;
                 }
-                numbersList.add(newIPScanner.nextInt());
+                numbersList.add(number);
             }
         } catch (NoSuchElementException e) {
             newIPScanner.close();
             return false;
         }
         newIPScanner.close();
-
-        if(numbersList.size() != 4){return false;} 
-        return true;       
+        // Makes sure there are 4 numbers
+        if (numbersList.size() != 4) {
+            return false;
+        }
+        return true;
     }
 
-    private int stripIP(String strIP){
+    /*
+     * Retruns the ip with the fullstops removed
+     */
+    private int stripIP(String strIP) {
         String strippedIP = "";
-        for(int charIndex =0; charIndex < strIP.length(); charIndex +=1){
-            if(Character.isDigit(strIP.charAt(charIndex))){strippedIP += strIP.charAt(charIndex);}
+        for (int charIndex = 0; charIndex < strIP.length(); charIndex += 1) {
+            if (Character.isDigit(strIP.charAt(charIndex))) {
+                strippedIP += strIP.charAt(charIndex);
+            }
         }
         return Integer.valueOf(strippedIP);
     }
 
-    public Device(Scanner lineScanner){
-        lineScanner.useDelimiter("\\|");
-        while (lineScanner.hasNext()) {
-            String identifyer = lineScanner.next();
-            if (!lineScanner.hasNext()) {break;} // Prevents errors from only an identifyer being present
-            String value = lineScanner.next();
-
-            if(identifyer.equals("ip")){setIP(value);}
-            if(identifyer.equals("name")){name = value;}
-            if(identifyer.equals("macAdress")){macAdress = value;}
-        }
-        if(strIP.equals("000.000.000.000")){status.changeStatus(DeviceStatus.statusEnum.INVALIDIP);}
-        lineScanner.close();
-    }
-
-    private Button getActionButton(){
-        Button action = CustomStyle.cardColourButton(status.getAction(),CustomStyle.MAIN_TEXT_WHITE,70,30);
-
-        EventHandler<ActionEvent> actionEvent = new EventHandler<ActionEvent>() { 
-            public void handle(ActionEvent e) 
-            { 
+    // ----------------------------------------- Getters -----------------------------------------
+    public String getName() {return name;}
+    public String getStrIP() {return strIP;}
+    public int getIntIP() {return intIP;}
+    /*
+     * Retruns a button with the approprate method bound to it for the device status.
+     */
+    private Button getActionButton() {
+        // Creates a button of the correct style
+        Button action = CustomStyle.cardColourButton(status.getAction(), CustomStyle.MAIN_TEXT_WHITE, 70, 30);
+        // Assigns the button the correct method.
+        EventHandler<ActionEvent> actionEvent = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e) {
                 switch (status.getStatusEnum()) {
-                    case OFFLINE:
+                    case OFFLINE: // If the device is offline then the user should be able to wake it.
                         wake();
                         break;
 
-                    case ONLINE:
+                    case ONLINE: // If the device is online then the user should be able to ssh into it.
                         ssh();
-                    break;
-                
+                        break;
+
                     default:
                         break;
                 }
-                
-            } 
+
+            }
         };
         action.setOnAction(actionEvent);
         return action;
     }
 
-    private Button getPingButton(){
-        Button pingButton = CustomStyle.cardColourButton("Ping",CustomStyle.MAIN_TEXT_WHITE,70,30);
-        EventHandler<ActionEvent> actionEvent = new EventHandler<ActionEvent>() { 
-            public void handle(ActionEvent e) 
-            { 
-                ping(true); 
-            } 
+    /*
+     * Retruns a button with the ping method bound to it.
+     */
+    private Button getPingButton() {
+        //Creates a button of the correct style.
+        Button pingButton = CustomStyle.cardColourButton("Ping", CustomStyle.MAIN_TEXT_WHITE, 70, 30);
+        //Binds the ping method to it.
+        EventHandler<ActionEvent> actionEvent = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e) {
+                ping(true);
+            }
         };
         pingButton.setOnAction(actionEvent);
         return pingButton;
     }
 
-
-    //Getters
-    public String getName(){return name;}
-    public String getStrIP() {return strIP;}
-    public int getIntIP() {return intIP;}
-
-    public HBox getCard(){
+    /*
+     * Retruns a card with the devices information on it.
+     * 
+     *     * * * * * * * * * * * * * 
+     *     *       name        /\  *
+     *     *        ip         |c| *
+     *     *    lastPingDate   |c| *
+     *     *  <action>  <ping> \/  *
+     *     * * * * * * * * * * * * * 
+     *     c = status colour
+     */
+    public HBox getCard() {
+        //-----Left Side Children-----
         Label nameLabel = CustomStyle.cardStyleLabel(name);
         Label ipLabel = CustomStyle.cardStyleLabel(strIP);
         Label lastPingDateLabel;
-        if(lastPingDate != null){
-            lastPingDateLabel = CustomStyle.cardStyleLabel(CustomStyle.PING_DATE_FORMAT.format(lastPingDate));
-        }else{
-            lastPingDateLabel = CustomStyle.cardStyleLabel("Last Ping : loading");
-        }
-         
-        TilePane bottomRow = new TilePane(getActionButton(),getPingButton());
+        // Makes sure last ping date is not null
+        if (lastPingDate != null) { lastPingDateLabel = CustomStyle.cardStyleLabel(CustomStyle.PING_DATE_FORMAT.format(lastPingDate));} 
+        else {lastPingDateLabel = CustomStyle.cardStyleLabel("Last Ping : loading");}
+
+        TilePane bottomRow = new TilePane(getActionButton(), getPingButton());
         bottomRow.setHgap(15);
-        bottomRow.setPadding(new Insets(0,0,0,15));
-        
-        VBox leftSide = new VBox(nameLabel,ipLabel,lastPingDateLabel,bottomRow);
+        bottomRow.setPadding(new Insets(0, 0, 0, 15));
+        //-----Left Side Children-----
+        VBox leftSide = new VBox(nameLabel, ipLabel, lastPingDateLabel, bottomRow);
         leftSide.setAlignment(Pos.CENTER);
         leftSide.setMaxWidth(200);
-        
-        Button rightSide = CustomStyle.cardColourButton("", status.getColor(),30,120);
-        HBox output = new HBox(leftSide,rightSide);
-        
+
+        Button rightSide = CustomStyle.cardColourButton("", status.getColor(), 30, 120);
+        HBox output = new HBox(leftSide, rightSide);
+
         output.setAlignment(Pos.CENTER_LEFT);
         output.setSpacing(5);
 
         output.setPrefWidth(245);
-        output.setPrefHeight(150);        
-        output.setBackground(new Background(new BackgroundFill(CustomStyle.BACK_GROUND_GREY, new CornerRadii(CustomStyle.CARD_CORNER_RADII), Insets.EMPTY)));
-        output.setBorder(new Border(new BorderStroke(Color.WHITE,BorderStrokeStyle.SOLID,new CornerRadii(CustomStyle.CARD_CORNER_RADII),new BorderWidths(3))));
-
+        output.setPrefHeight(150);
+        output.setBackground(new Background(new BackgroundFill(CustomStyle.BACK_GROUND_GREY,
+                new CornerRadii(CustomStyle.CARD_CORNER_RADII), Insets.EMPTY)));
+        output.setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID,
+                new CornerRadii(CustomStyle.CARD_CORNER_RADII), new BorderWidths(3))));
         return output;
     }
 
 
-    
-    // Sends a ping request to the device 
-    // Returns the string output 
-    private String sendPing(int numberToReccive, int timout,boolean windows){
+    // ----------------------------------------- Ping Methods -----------------------------------------
+    /*
+     * Checks if the time since the last ping is greater than the PING_INTERVAL.
+     * Returns true if the lastPingDate is null or the time since last ping is greater than the PING_INTERVAL.
+     * Retrusn false if the time since last ping is less than the PING_INTERVAL.
+     */
+    private boolean checkLastPingDate(){
+        //Gets the current time 
+        Date currentDate = new Date();
+        if (lastPingDate != null) {
+            // Subtracts the time since the epoch in milliseonds of the current time from the last ping time.
+            Date timeSinceLastPing = new Date(currentDate.getTime() - lastPingDate.getTime());
+            // Checsk if this time is less than the PING_INTERVAL.
+            if (timeSinceLastPing.getTime() < PING_INTERVAL) {return false;}
+        }
+        lastPingDate = currentDate;
+        return true;
+    }   
+
+    /*
+     * Sends a ping to the devices ip returns a string of the os's response.
+     */
+    private String sendPing(int numberToReccive, int timout, boolean windows) {
         String pingResult = "";
         String pingCmd;
 
-        if(windows){pingCmd = "ping /n "+numberToReccive+ " /w "+ timout+ " " + strIP;
-        }else{pingCmd = "ping -c "+numberToReccive+ " -w "+ timout+ " " + strIP;}
+        // Constructs the ping command depending on the os.
+        if (windows) {pingCmd = "ping /n " + numberToReccive + " /w " + timout + " " + strIP;} 
+        else {pingCmd = "ping -c " + numberToReccive + " -w " + timout + " " + strIP;}
 
+        // Attempts to run the command and read the response.
         try {
             Runtime r = Runtime.getRuntime();
             Process p = r.exec(pingCmd);
 
-            BufferedReader in = new BufferedReader(new
-            InputStreamReader(p.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
-                //System.out.println(inputLine);
                 pingResult += inputLine;
             }
             in.close();
-            //System.out.println("pingResult : "+ pingResult);
-        
+
         } catch (IOException e) {
             System.out.println(e);
         }
@@ -240,29 +304,37 @@ public class Device implements Comparable<Device>{
         return pingResult;
     }
 
-    private boolean checkPingResult(String pingResult,int numberToReccive,boolean windows){
+    /*
+     * Takes a string and uses a scanner to search for the number of packets reccived.
+     * if the number is equal to the numberToReccive then true is returned.
+     */
+    private boolean checkPingResult(String pingResult, int numberToReceive, boolean windows) {
         Scanner outputScanner = new Scanner(pingResult);
         String prevous = "";
-        while(outputScanner.hasNext()){
+        while (outputScanner.hasNext()) {
             String current = outputScanner.next();
-            if(windows){
-                if(current.equals("Received")){
+            // The format for the windows ping is : Received = 1,
+            // The format for the linux ping is : 1 received
+            // This neccesitates the two diffrent search types.
+            if (windows) {
+                if (current.equals("Received")) {
                     outputScanner.next(); // Skips the equals
-                    if(outputScanner.next().equals(numberToReccive + ",")){
+                    // Checks if the next thing is the number to receive 
+                    if (outputScanner.next().equals(numberToReceive + ",")) {
                         outputScanner.close();
                         return true;
-                    }else{
+                    } else {
                         outputScanner.close();
                         return false;
                     }
                 }
-
-            }else{
-                if(current.equals("received")){
-                    if(prevous.equals(String.valueOf(numberToReccive))){
+            } else {
+                if (current.equals("received")) {
+                    // Checks if the prevously scanned string is the number to receive
+                    if (prevous.equals(String.valueOf(numberToReceive))) {
                         outputScanner.close();
                         return true;
-                    }else{
+                    } else {
                         outputScanner.close();
                         return false;
                     }
@@ -274,63 +346,47 @@ public class Device implements Comparable<Device>{
         return false;
     }
 
-
-
+    /*
+     * Takes a string and uses a scanner to search for the number of packets reccived.
+     * Only returns true if a ping is sent
+     */
     @FXML
-    public boolean ping(boolean ignoreCoolDown){
-        Date currentDate = new Date();
-        if(lastPingDate != null){
-            Date timeSinceLastPing = new Date(currentDate.getTime()-lastPingDate.getTime());
-            if(timeSinceLastPing.getTime() < PING_INTERVAL && !ignoreCoolDown){return false;}
-        }
-        lastPingDate = currentDate;
-
-        if(status.getStatusEnum() == DeviceStatus.statusEnum.INVALIDIP){return true;}
-
-        String pingResult = sendPing(1,1,PrimaryController.windows);
-
-        if(checkPingResult(pingResult, 1,PrimaryController.windows)){
-            //Could be reached so online
-            //System.out.println("checkPingResult : true");
-            status.changeStatus(DeviceStatus.statusEnum.ONLINE);
-        }else{
-            //Could not be reached so offline
-           // System.out.println("checkPingResult : false");
-            status.changeStatus(DeviceStatus.statusEnum.OFFLINE);
+    public boolean ping(boolean ignoreCoolDown) {
+        if (status.invalidIP()) {return false;}
+        // If the time since the last ping is lesss than the interval and we do care about the cool down.
+        if (!checkLastPingDate() && !ignoreCoolDown){return false;}
+        // Sends the ping
+        String pingResult = sendPing(2, 1, PrimaryController.windows);
+        // Checks if the right number of packets was reccived
+        if (checkPingResult(pingResult, 2, PrimaryController.windows)) {
+            status.sucessfulPing();
+        } else {
+            status.unsucessfulPing();
         }
         return true;
     }
 
     @FXML
-    public void wake(){
-        //send magic packet
+    public void wake() {
+        // send magic packet
         System.out.println("Magic packet sent to : " + strIP);
     }
 
     @FXML
-    public void ssh(){
-        //run ssh script
+    public void ssh() {
+        // run ssh script
         System.out.println("SSH script run to : " + strIP);
     }
 
-    public String toString(){
-        return "strIP : " +strIP+" | intIP : " + intIP +" | name: " + name + " | macAdress : " + macAdress;
+    public String toString() {
+        return "strIP : " + strIP + " | intIP : " + intIP + " | name: " + name + " | macAdress : " + macAdress;
     }
 
-    //Interfaces 
-
     /*
-    * The higher the IP the higher rank.
+     * The higher the IP the higher rank.
      */
     public int compareTo(Device o) {
-        if(this.intIP > o.intIP){
-            return 1;
-        }else if( this.intIP == o.intIP){
-            return 0;
-        }else{
-            return -1;
-        }
+        return Integer.compare(this.intIP, o.intIP);
     }
 
 }
-
