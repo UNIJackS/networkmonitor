@@ -64,9 +64,10 @@ public class DeviceManager {
     }
 
     // Loads the devices from the DeviceList.txt file.
-    private void loadFromFile() {
+    public void loadFromFile() {
         // Clears the devices set.
         devicesQueue.clear();
+        devicesMap.clear();
         // Creates a scanner from the DeviceList.txt file
         Scanner linesInFileScanner = readFile("DeviceList.txt");
         // Loops through the lines in the file.
