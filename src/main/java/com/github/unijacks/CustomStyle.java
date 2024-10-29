@@ -14,7 +14,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 import java.text.SimpleDateFormat;  
-
+/*
+ * Used to put all the style constants in one place.
+ */
 public class CustomStyle {
     //Date Formats
     public final static SimpleDateFormat HUMAN_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
@@ -36,19 +38,16 @@ public class CustomStyle {
     public final static Color ONLINE_GREEN = Color.web("00b894"); // Mint Green - dark green
     public final static Color UNREACHABLE_YELLOW = Color.web("fdcb6e"); // Bright yarrow - yellow
     public final static Color OFFLINE_ORANGE = Color.web("e17055"); // OrangeVille -  orange
-
-    public final static Color LOADING_GREY = Color.web("636e72"); // 
+    public final static Color LOADING_GREY = Color.web("2d3436"); // 
 
     public final static Color INVALID_IP_PINK = Color.web("e84393"); // Prunus Avium - Pink
     public final static Color MAGIC_PACKET_PURPLE = Color.web("6c5ce7"); // Exodius Fruit - purple
 
-
     public final static Color BUTTON_GREY = Color.web("636e72"); // 
 
-    //Card varables
+    //----------------------------------------- Card Methods -----------------------------------------
     public final static int CARD_CORNER_RADII = 15;
 
-    //Card Functions 
     public static Button cardColourButton (String text, Color color,double width, double height ){
         Button output = new Button(text);
         CornerRadii buttonCornerRadii = new CornerRadii(15);
