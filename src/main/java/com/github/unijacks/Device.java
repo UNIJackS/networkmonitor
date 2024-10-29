@@ -1,16 +1,5 @@
 package com.github.unijacks;
 
-import java.io.IOException;
-import java.lang.String;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-
-import com.github.unijacks.Event.eventType;
-
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -19,10 +8,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.VBox;
-
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
@@ -30,21 +17,19 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.util.Duration;
-
-import java.util.Scanner;
-
 import javafx.scene.control.Button;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.IOException;
 
 import java.util.NoSuchElementException;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
+import java.util.Scanner;
+
+import java.lang.String;
 
 /*
  * Represents a single device. Uniquily identifable by their IP.
