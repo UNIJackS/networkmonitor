@@ -36,6 +36,9 @@ public class DeviceManager {
     //Returns a unmodifiable map of the devices.
     public Map<String, Device> getDevicesMap() {return Collections.unmodifiableMap(devicesMap);}
 
+    public int getNumberOfDevices(){return devicesMap.size();}
+
+
     /*
      * Takes a flow plane and updates its children to contain the cards of all the devices.
      */

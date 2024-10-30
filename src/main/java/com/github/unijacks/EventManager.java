@@ -28,6 +28,8 @@ public class EventManager {
         System.out.println("Events loaded sucessfully");
     }
 
+    public int getNumberOfEvents(){return events.size();}
+
     //Adds an event to the queue and saves it as a file.
     public void addEvent(Event.eventType type,String ip){
         events.add(new Event(type,new Date(),ip));
@@ -49,7 +51,6 @@ public class EventManager {
     public void loadFromFile(){
         // Clears the devices set.
         events.clear();
-        ///home/jack/Desktop/events
         File evnentsDirectory = new File("events");
         File[] eventFiles = evnentsDirectory.listFiles(); 
         for(File currentFile : eventFiles){

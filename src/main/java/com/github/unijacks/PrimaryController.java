@@ -24,24 +24,22 @@ public class PrimaryController {
     public final static boolean windows = true;
     //Global static varables
     public final static int UPDATE_PERIOD = 2; // Seconds
-    public final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");  
-    public final static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");  
 
     //Global managers
     DeviceManager deviceManager = new DeviceManager();
     EventManager eventManager = new EventManager();
+    InfoManager infoManager = new InfoManager();
 
     // Labels
     @FXML Label infoHeaderLabel;
     @FXML Label devicesHeaderLabel;
     @FXML Label activityHeaderLabel;
-    @FXML Label dateLabel;
-    @FXML Label timeLabel;
 
     // Panes
     @FXML BorderPane mainBorderPane;
     @FXML FlowPane devicesFlowPane;
     @FXML FlowPane eventsFlowPane;
+    @FXML FlowPane infoFlowPane;
 
     // Buttons 
     @FXML Button deviceLoadButton;
@@ -63,6 +61,11 @@ public class PrimaryController {
         eventManager.updateFlowPane(eventsFlowPane,deviceManager.getDevicesMap());
         System.out.println("Event manager flow pane loaded sucessfuly");
 
+        System.out.println("Info manager flow pane loading ...");
+        infoManager.updateFlowPane(infoFlowPane,deviceManager,eventManager);
+        System.out.println("Info manager flow pane loaded sucessfuly");
+
+
         setFonts();
         setTextColor();
         setButtonColor();
@@ -72,8 +75,6 @@ public class PrimaryController {
     }
 
     private void setTextColor(){
-        dateLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
-        timeLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
         infoHeaderLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
         devicesHeaderLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
         activityHeaderLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
@@ -95,9 +96,6 @@ public class PrimaryController {
         activityHeaderLabel.setFont(CustomStyle.Header_FONT);
         devicesHeaderLabel.setFont(CustomStyle.Header_FONT);
         infoHeaderLabel.setFont(CustomStyle.Header_FONT);
-
-        dateLabel.setFont(CustomStyle.INFO_FONT);
-        timeLabel.setFont(CustomStyle.INFO_FONT);
     }
     
     // Pings devices and updates the time every UPDATE_PERIOD seconds.
@@ -107,7 +105,6 @@ public class PrimaryController {
             new KeyFrame(Duration.seconds(UPDATE_PERIOD), e -> {
                 try {
                     update();
-
                 } catch (IOException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
@@ -121,15 +118,12 @@ public class PrimaryController {
     //Updatse the time and date labels to the current time and date.
     @FXML
     private void update() throws IOException{
-        Date date = new Date();
-        dateLabel.setText(DATE_FORMAT.format(date));
-        timeLabel.setText(TIME_FORMAT.format(date));
-
         pingDevices();
         loadEvents();
 
         deviceManager.updateFlowPane(devicesFlowPane);
         eventManager.updateFlowPane(eventsFlowPane, deviceManager.getDevicesMap());
+        infoManager.updateFlowPane(infoFlowPane,deviceManager,eventManager);
     }
 
 

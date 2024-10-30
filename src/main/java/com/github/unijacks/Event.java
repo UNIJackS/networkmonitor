@@ -61,7 +61,7 @@ public class Event implements Comparable<Event>{
 
     //Creates an event from provided data and saves it to a file
     public Event(eventType type,Date dateOccurred,String ip){
-        System.out.println("Creating new event");
+        System.out.println("Creating new event | type + " + type.name() + " | ip : " + ip);
         this.dateOccurred = dateOccurred;
         this.type = type;
         this.ip = ip;
@@ -146,25 +146,20 @@ public class Event implements Comparable<Event>{
             deviceInvolved = new Device(null,null,null);
         }
 
-        Label nameLabel = CustomStyle.cardStyleLabel(deviceInvolved.getName());
-        Label typeLabel = CustomStyle.cardStyleLabel(type.getDesc());
-        Label dateLabel = CustomStyle.cardStyleLabel(CustomStyle.HUMAN_DATE_FORMAT.format(dateOccurred));
+        Label nameLabel = CustomStyle.cardTextLabel(deviceInvolved.getName());
+        Label typeLabel = CustomStyle.cardTextLabel(type.getDesc());
+        Label dateLabel = CustomStyle.cardTextLabel(CustomStyle.HUMAN_DATE_FORMAT.format(dateOccurred));
    
         VBox leftSide = new VBox(nameLabel,typeLabel,dateLabel);
         leftSide.setAlignment(Pos.CENTER);
         leftSide.setMinWidth(210);
         
         Button rightSide = CustomStyle.cardColourButton("", type.getColor(),30,75);
-        HBox output = new HBox(leftSide,rightSide);
+        
+        HBox output = CustomStyle.cardBox(new HBox(leftSide,rightSide), 260, 105); 
         
         output.setAlignment(Pos.CENTER_LEFT);
         output.setSpacing(5);
-
-        output.setPrefWidth(260);
-        output.setPrefHeight(105);        
-        output.setBackground(new Background(new BackgroundFill(CustomStyle.BACK_GROUND_GREY, new CornerRadii(CustomStyle.CARD_CORNER_RADII), Insets.EMPTY)));
-        output.setBorder(new Border(new BorderStroke(Color.WHITE,BorderStrokeStyle.SOLID,new CornerRadii(CustomStyle.CARD_CORNER_RADII),new BorderWidths(3))));
-        
         return output;
     }
 

@@ -10,8 +10,10 @@ import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.layout.HBox;
 
 import java.text.SimpleDateFormat;  
 /*
@@ -20,13 +22,17 @@ import java.text.SimpleDateFormat;
 public class CustomStyle {
     //Date Formats
     public final static SimpleDateFormat HUMAN_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
-    public final static SimpleDateFormat FILE_NAME_DATE_FORMAT = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss"); 
-    public final static SimpleDateFormat PING_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");  
+    public final static SimpleDateFormat FILE_NAME_DATE_FORMAT = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
+     
+    public final static SimpleDateFormat JUST_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");  
+    public final static SimpleDateFormat JUST_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");  
 
     //Fonts
     public final static Font Header_FONT = new Font(60);
     public final static Font INFO_FONT = new Font(20);
-    public final static Font CARD_FONT = new Font(20);
+    public final static Font CARD_TITLE_FONT = new Font(30);
+    public final static Font CARD_INFO_FONT = new Font(20);
+
 
     //Colours 
     public final static Color BACK_GROUND_GREY = Color.web("2d3436"); // Dracula Orchid - Grey
@@ -59,12 +65,46 @@ public class CustomStyle {
         return output;
     }
 
-    public static Label cardStyleLabel(String text){
-        Label output = new Label(text);
-        output.setFont(CustomStyle.CARD_FONT);
-        output.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
+    public static VBox cardBox(VBox output,double width, double height){
+        output.setPrefWidth(width);   
+        output.setPrefHeight(height);   
+        return cardBox(output);
+    }
+
+    public static VBox cardBox(VBox output){ 
+        output.setBackground(new Background(new BackgroundFill(CustomStyle.BACK_GROUND_GREY, new CornerRadii(CustomStyle.CARD_CORNER_RADII), Insets.EMPTY)));
+        output.setBorder(new Border(new BorderStroke(Color.WHITE,BorderStrokeStyle.SOLID,new CornerRadii(CustomStyle.CARD_CORNER_RADII),new BorderWidths(3))));
         return output;
     }
+
+    public static HBox cardBox(HBox output,double width, double height){
+        output.setPrefWidth(width);
+        output.setPrefHeight(height);   
+        return cardBox(output);
+    }
+
+    public static HBox cardBox(HBox output){  
+        output.setBackground(new Background(new BackgroundFill(CustomStyle.BACK_GROUND_GREY, new CornerRadii(CustomStyle.CARD_CORNER_RADII), Insets.EMPTY)));
+        output.setBorder(new Border(new BorderStroke(Color.WHITE,BorderStrokeStyle.SOLID,new CornerRadii(CustomStyle.CARD_CORNER_RADII),new BorderWidths(3))));
+        return output;
+    }
+
+    public static Label cardTextLabel(String text){
+        Label output = new Label(text);
+        output.setFont(CARD_INFO_FONT);
+        output.setTextFill(MAIN_TEXT_WHITE);
+        return output;
+    }
+
+    public static Label cardTitleLabel(String text){
+        Label output = new Label(text);
+        output.setFont(CARD_TITLE_FONT);
+        output.setTextFill(MAIN_TEXT_WHITE);
+        output.setUnderline(true);
+        return output;
+    }
+
+
 
 
 }

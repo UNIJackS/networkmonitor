@@ -36,11 +36,18 @@ import java.lang.String;
  */
 public class Device implements Comparable<Device> {
     public final static int PING_INTERVAL = 15000;
+    public final static int PACKETS_TO_SEND = 2;
+    public final static int PACKETS_TO_RECCIVE = 2;
+    public final static int PING_TIMEOUT = 1;
 
-    private String strIP; // Required
-    private int intIP;
-    private String name = "Name unset";
-    private String macAdress = "MAC address unset";
+
+    public final static String DEFAULT_STR_IP = "IP Not Set";
+    public final static int DEFAULT_INT_IP = 000000000000;
+
+    private String strIP = DEFAULT_STR_IP; // Required
+    private int intIP = DEFAULT_INT_IP;
+    private String name = "Name Not Set";
+    private String macAdress = "MAC address Not Set";
 
     private Date lastPingDate;
     private DeviceStatus status;
@@ -48,7 +55,11 @@ public class Device implements Comparable<Device> {
     // ----------------------------------------- Constructors -----------------------------------------
     // Used to create a new device not in the Devices.txt file.
     public Device(String IP, String name, String macAdress) {
-        setIP(IP);
+        status = new DeviceStatus(IP);
+        if(!status.isIPInvalid()){
+            this.strIP = IP;
+            this.intIP = stripIP(IP);
+        }
         if (name != null) {
             this.name = name;
         }
@@ -69,7 +80,11 @@ public class Device implements Comparable<Device> {
             String value = lineScanner.next();
 
             if (identifyer.equals("ip")) {
-                setIP(value);
+                status = new DeviceStatus(value);
+                if(!status.isIPInvalid()){
+                    this.strIP = value;
+                    this.intIP = stripIP(value);
+                }
             }
             if (identifyer.equals("name")) {
                 name = value;
@@ -82,59 +97,6 @@ public class Device implements Comparable<Device> {
     }
 
     // ----------------------------------------- IP Methods -----------------------------------------
-    /*
-     * Attempts to set the ip of the Device to the new ip.
-     * If this is unsucessful then
-     * - strIP is set to "Invalid IP"
-     * - intIP is set to 000000000000
-     */
-    private void setIP(String newIP) {
-        if (verifyIP(newIP)) {
-            // If the new ip is valid then set it.
-            strIP = newIP;
-            intIP = stripIP(newIP);
-            status = new DeviceStatus(DeviceStatus.statusEnum.LOADING, strIP);
-        } else {
-            // If the new ip is invalid then set the status to invalid ip.
-            strIP = "Invalid IP";
-            intIP = 000000000000;
-            status = new DeviceStatus(DeviceStatus.statusEnum.INVALIDIP, strIP);
-        }
-    }
-
-    /*
-     * Verifys an ip follows the correct format "000.000.000.000".
-     */
-    private static boolean verifyIP(String newIP) {
-        if (newIP == null) {
-            return false;
-        } // Checks the ip is not null.
-        Scanner newIPScanner = new Scanner(newIP);
-        newIPScanner.useDelimiter("\\.");
-        List<Integer> numbersList = new ArrayList<>(); // Stores the numbers
-        try {
-            // Loops through the new ip and reccords the numbers between the fullstops.
-            while (newIPScanner.hasNext()) {
-                int number = newIPScanner.nextInt();
-                // Makes sure the numbers are less than 255
-                if (number > 255) {
-                    newIPScanner.close();
-                    return false;
-                }
-                numbersList.add(number);
-            }
-        } catch (NoSuchElementException e) {
-            newIPScanner.close();
-            return false;
-        }
-        newIPScanner.close();
-        // Makes sure there are 4 numbers
-        if (numbersList.size() != 4) {
-            return false;
-        }
-        return true;
-    }
-
     /*
      * Retruns the ip with the fullstops removed
      */
@@ -207,35 +169,31 @@ public class Device implements Comparable<Device> {
      *     * * * * * * * * * * * * * 
      *     c = status colour
      */
-    public HBox getCard() {
-        //-----Left Side Children-----
-        Label nameLabel = CustomStyle.cardStyleLabel(name);
-        Label ipLabel = CustomStyle.cardStyleLabel(strIP);
+    public VBox getCard() {
+        Button statusIndicator = CustomStyle.cardColourButton("", status.getColor(), 30, 30);
+        Label nameLabel = CustomStyle.cardTextLabel(name);
+        HBox nameLabelBox = new HBox(nameLabel);
+        nameLabelBox.setAlignment(Pos.CENTER);
+        nameLabelBox.setMinWidth(90);
+        HBox topRow = new HBox(statusIndicator,nameLabelBox);
+        topRow.setPadding(new Insets(10,10,0,10));
+        topRow.setSpacing(10);
+        topRow.setAlignment(Pos.CENTER_LEFT);
+
+
+        Label ipLabel = CustomStyle.cardTextLabel(strIP);
         Label lastPingDateLabel;
         // Makes sure last ping date is not null
-        if (lastPingDate != null) { lastPingDateLabel = CustomStyle.cardStyleLabel(CustomStyle.PING_DATE_FORMAT.format(lastPingDate));} 
-        else {lastPingDateLabel = CustomStyle.cardStyleLabel("Last Ping : loading");}
+        if (lastPingDate != null) { lastPingDateLabel = CustomStyle.cardTextLabel(CustomStyle.JUST_TIME_FORMAT.format(lastPingDate));} 
+        else {lastPingDateLabel = CustomStyle.cardTextLabel("Last Ping : loading");}
 
-        TilePane bottomRow = new TilePane(getActionButton(), getPingButton());
-        bottomRow.setHgap(15);
-        bottomRow.setPadding(new Insets(0, 0, 0, 15));
-        //-----Left Side Children-----
-        VBox leftSide = new VBox(nameLabel, ipLabel, lastPingDateLabel, bottomRow);
-        leftSide.setAlignment(Pos.CENTER);
-        leftSide.setMaxWidth(200);
+        HBox bottomRow = new HBox(getActionButton(), getPingButton());
+        bottomRow.setSpacing(10);
+        bottomRow.setAlignment(Pos.CENTER);
+        VBox output = CustomStyle.cardBox(new VBox(topRow, ipLabel,lastPingDateLabel,bottomRow), 195, 145);
 
-        Button rightSide = CustomStyle.cardColourButton("", status.getColor(), 30, 120);
-        HBox output = new HBox(leftSide, rightSide);
-
-        output.setAlignment(Pos.CENTER_LEFT);
-        output.setSpacing(5);
-
-        output.setPrefWidth(245);
-        output.setPrefHeight(150);
-        output.setBackground(new Background(new BackgroundFill(CustomStyle.BACK_GROUND_GREY,
-                new CornerRadii(CustomStyle.CARD_CORNER_RADII), Insets.EMPTY)));
-        output.setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID,
-                new CornerRadii(CustomStyle.CARD_CORNER_RADII), new BorderWidths(3))));
+        output.setAlignment(Pos.CENTER);
+        output.setSpacing(0);
         return output;
     }
 
@@ -253,22 +211,23 @@ public class Device implements Comparable<Device> {
             // Subtracts the time since the epoch in milliseonds of the current time from the last ping time.
             Date timeSinceLastPing = new Date(currentDate.getTime() - lastPingDate.getTime());
             // Checsk if this time is less than the PING_INTERVAL.
-            if (timeSinceLastPing.getTime() < PING_INTERVAL) {return false;}
+            if (timeSinceLastPing.getTime() < PING_INTERVAL) {
+                System.out.println("Time less than interval : returning false");
+                return false;}
         }
-        lastPingDate = currentDate;
         return true;
     }   
 
     /*
      * Sends a ping to the devices ip returns a string of the os's response.
      */
-    private String sendPing(int numberToReccive, int timout, boolean windows) {
+    private String sendPing(int numberToSend, int timout, boolean windows) {
         String pingResult = "";
         String pingCmd;
 
         // Constructs the ping command depending on the os.
-        if (windows) {pingCmd = "ping /n " + numberToReccive + " /w " + timout + " " + strIP;} 
-        else {pingCmd = "ping -c " + numberToReccive + " -w " + timout + " " + strIP;}
+        if (windows) {pingCmd = "ping /n " + numberToSend + " /w " + timout + " " + strIP;} 
+        else {pingCmd = "ping -c " + numberToSend + " -w " + timout + " " + strIP;}
 
         // Attempts to run the command and read the response.
         try {
@@ -337,13 +296,20 @@ public class Device implements Comparable<Device> {
      */
     @FXML
     public boolean ping(boolean ignoreCoolDown) {
-        if (status.invalidIP()) {return false;}
+        if (status.isIPInvalid()) {return false;}
         // If the time since the last ping is lesss than the interval and we do care about the cool down.
-        if (!checkLastPingDate() && !ignoreCoolDown){return false;}
+        boolean timeSinceInterval = checkLastPingDate();
+        System.out.println("timeSinceInterval : " + !timeSinceInterval); 
+        System.out.println("ignoreCoolDown : " + !ignoreCoolDown); 
+
+        if (!timeSinceInterval && !ignoreCoolDown){return false;}
+        System.out.println("Ping being sent"); 
+
+        lastPingDate = new Date();
         // Sends the ping
-        String pingResult = sendPing(2, 1, PrimaryController.windows);
+        String pingResult = sendPing(PACKETS_TO_SEND, PING_TIMEOUT, PrimaryController.windows);
         // Checks if the right number of packets was reccived
-        if (checkPingResult(pingResult, 2, PrimaryController.windows)) {
+        if (checkPingResult(pingResult, PACKETS_TO_RECCIVE, PrimaryController.windows)) {
             status.sucessfulPing();
         } else {
             status.unsucessfulPing();
