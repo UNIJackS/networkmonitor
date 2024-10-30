@@ -6,6 +6,13 @@ For the jar file to run it must be placed in a directory with a Devices.txt file
 The program will store events in the events directory. 
 The program will load the devices to monitor from the Devices.txt file. 
 
+The program requires java to run the .jar file and openjfx to run the javaFX GUI. I used the following commands to install the relevent packages.
+- sudo apt-get install openjdk-7-jdk
+- sudo apt-get install openjfx
+
+To run the program I use the following. (I found this command on an article online which I can no longer find)
+- java --module-path /usr/share/openjfx/lib --add-modules=javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web -jar networkmonitor.jar
+
 ## Devices.txt File
 This is used to load the devices to monitor. Each line corresponds to a different device and should follow the following format.
 - Format: Identifyer|Value|Identifyer|Value
@@ -24,3 +31,7 @@ The names of the files are NOT relevant as the program loads all the files in th
 - File Name Example: ip=8.8.8.8_type=CAME_ONLINE_dateOccurred=29_10_2024_14_48_01.txt
 
 Windows does not allow for verticle lines "|" in names so they are replaced with underscores "\_". Navigating files with spaces in the name through a CLI is a pain so the spaces " " in the date are also replaced with underscores "\_".
+
+## Notes 
+A useful command I found to install an on-screen keyboard for rasberry pi os is.
+- sudo apt install matchbox-keyboard
