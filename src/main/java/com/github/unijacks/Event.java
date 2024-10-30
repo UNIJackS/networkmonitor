@@ -61,7 +61,6 @@ public class Event implements Comparable<Event>{
 
     //Creates an event from provided data and saves it to a file
     public Event(eventType type,Date dateOccurred,String ip){
-        System.out.println("Creating new event | type + " + type.name() + " | ip : " + ip);
         this.dateOccurred = dateOccurred;
         this.type = type;
         this.ip = ip;

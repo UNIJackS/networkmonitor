@@ -212,7 +212,6 @@ public class Device implements Comparable<Device> {
             Date timeSinceLastPing = new Date(currentDate.getTime() - lastPingDate.getTime());
             // Checsk if this time is less than the PING_INTERVAL.
             if (timeSinceLastPing.getTime() < PING_INTERVAL) {
-                System.out.println("Time less than interval : returning false");
                 return false;}
         }
         return true;
@@ -298,12 +297,7 @@ public class Device implements Comparable<Device> {
     public boolean ping(boolean ignoreCoolDown) {
         if (status.isIPInvalid()) {return false;}
         // If the time since the last ping is lesss than the interval and we do care about the cool down.
-        boolean timeSinceInterval = checkLastPingDate();
-        System.out.println("timeSinceInterval : " + !timeSinceInterval); 
-        System.out.println("ignoreCoolDown : " + !ignoreCoolDown); 
-
-        if (!timeSinceInterval && !ignoreCoolDown){return false;}
-        System.out.println("Ping being sent"); 
+        if (!checkLastPingDate() && !ignoreCoolDown){return false;}
 
         lastPingDate = new Date();
         // Sends the ping
