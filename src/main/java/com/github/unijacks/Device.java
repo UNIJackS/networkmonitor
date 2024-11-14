@@ -29,12 +29,14 @@ import java.util.List;
 import java.util.Date;
 import java.util.Scanner;
 
+import com.github.unijacks.DeviceStatus.statusEnum;
+
 import java.lang.String;
 
 /*
  * Represents a single device. Uniquily identifable by their IP.
  */
-public class Device implements Comparable<Device> {
+public class Device implements Comparable<Device>{
     public final static int PING_INTERVAL = 15000;
     public final static int PACKETS_TO_SEND = 2;
     public final static int PACKETS_TO_RECCIVE = 2;
@@ -51,6 +53,8 @@ public class Device implements Comparable<Device> {
 
     private Date lastPingDate;
     private DeviceStatus status;
+
+    private boolean needUpdate = true;
 
     // ----------------------------------------- Constructors -----------------------------------------
     // Used to create a new device not in the Devices.txt file.
@@ -114,6 +118,15 @@ public class Device implements Comparable<Device> {
     public String getName() {return name;}
     public String getStrIP() {return strIP;}
     public int getIntIP() {return intIP;}
+    public DeviceStatus.statusEnum getStatusEnum(){ return status.getStatusEnum();};
+
+    public boolean needsUpdate(){
+        // Prevous is used here as if we return the value it will not get reset to false.
+        boolean prevousNeedUpdate = needUpdate;
+        needUpdate = false;
+        return prevousNeedUpdate;
+    }
+    
     /*
      * Retruns a button with the approprate method bound to it for the device status.
      */
@@ -299,10 +312,13 @@ public class Device implements Comparable<Device> {
      */
     @FXML
     public boolean ping(boolean ignoreCoolDown) {
+        System.out.println("Ping called :  " + strIP);
         if (status.isIPInvalid()) {return false;}
         // If the time since the last ping is lesss than the interval and we do care about the cool down.
         if (!checkLastPingDate() && !ignoreCoolDown){return false;}
 
+        System.out.println("Ping exacuted : " + strIP);
+        needUpdate = true;
         lastPingDate = new Date();
         // Sends the ping
         String pingResult = sendPing(PACKETS_TO_SEND, PING_TIMEOUT, PrimaryController.windows);
@@ -336,6 +352,10 @@ public class Device implements Comparable<Device> {
      */
     public int compareTo(Device o) {
         return Integer.compare(this.intIP, o.intIP);
+    }
+
+    public boolean equals(Device obj) {
+        return Integer.valueOf(intIP).equals(Integer.valueOf(obj.getIntIP()));
     }
 
 }
