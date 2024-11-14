@@ -13,7 +13,7 @@ The program requires java to run the .jar file and openjfx to run the javaFX GUI
 To run the program I use the following. (I found this command on an article online which I can no longer find)
 - java --module-path /usr/share/openjfx/lib --add-modules=javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web -jar networkmonitor.jar
 
-## Devices.txt File
+## DeviceList.txt File
 This is used to load the devices to monitor. Each line corresponds to a different device and should follow the following format.
 - Format: Identifyer|Value|Identifyer|Value
 - Example: ip|8.8.8.8|name|Google
