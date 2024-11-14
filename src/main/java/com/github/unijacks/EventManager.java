@@ -46,16 +46,44 @@ public class EventManager {
 
 
     /*
-     * Loads the devices from the DeviceList.txt file.
+     * Loads the events from the events directory.
+     * Returns true if new events were loaded.
+     * Returns false if the same events were loaded.
      */
-    public void loadFromFile(){
-        // Clears the devices set.
-        events.clear();
+    public boolean loadFromFile(){
+        //Stores all the events that are loaded.
+        Queue<Event> tempEvents = new PriorityQueue<>() ; 
+
+        //Loads all the events from the events folder.
         File evnentsDirectory = new File("events");
         File[] eventFiles = evnentsDirectory.listFiles(); 
         for(File currentFile : eventFiles){
-            events.add(new Event(currentFile));
+            tempEvents.add(new Event(currentFile));
         }
+
+        //Checks if there are any new events.
+        if(!comparePriorityQueue(events,tempEvents)){
+            // If there are then the global events queue is updated
+            events = new PriorityQueue<>(tempEvents);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    // Returns true if all elements equal each other.
+    private static boolean comparePriorityQueue(Queue<Event> queueOne, Queue<Event> queueTwo){
+        if(queueOne.size() != queueTwo.size()){ return false;} // Returns false if the two queuse are diffrent sizes
+
+        Queue<Event> copyQueueOne = new PriorityQueue<>(queueOne);
+        Queue<Event> copyQueueTwo = new PriorityQueue<>(queueTwo);
+
+        while(!copyQueueOne.isEmpty()){
+            if(!copyQueueOne.poll().equals(copyQueueTwo.poll())){
+                return false;
+            }
+        }
+        return true;
         
     }
 

@@ -170,4 +170,8 @@ public class Event implements Comparable<Event>{
     public int compareTo(Event o) {
         return o.dateOccurred.compareTo(this.dateOccurred);
     }
+
+    public boolean equals(Event obj) {
+        return this.toString().equals(obj.toString());
+    }
 }

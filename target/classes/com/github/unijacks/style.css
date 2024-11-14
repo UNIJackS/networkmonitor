@@ -9,12 +9,37 @@
 
 .titleLabel{
     -fx-font-size: 30;
+    -fx-underline: true;
 }
 
 .textLabel{
     -fx-font-size: 20;
 }
 
-.button{
+.card{
+    -fx-background-color: #2d3436;
+    -fx-background-radius: 15;
 
+
+    -fx-border-color: #ffffff;
+    -fx-border-radius: 15;
+    -fx-border-width: 3;
+
+    -fx-spacing: 10;
+
+    -fx-padding: 0 15 15 15;
+}
+
+.statusButton{    
+    -fx-border-radius: 15;
+    -fx-border-width: 3;
+
+    -fx-border-color: #ffffff;
+    -fx-border-radius: 15;
+    -fx-border-width: 3;
+}
+
+.bottomButton{
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 5 5 0 0;
 }

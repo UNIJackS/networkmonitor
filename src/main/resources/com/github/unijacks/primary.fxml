@@ -14,19 +14,27 @@
          <Label fx:id="infoHeaderLabel" alignment="TOP_LEFT" styleClass="headerLabel" text="Info" underline="True" />
          <FlowPane fx:id="infoFlowPane" hgap="20" prefWidth="240" vgap="20">
             <children>
-               <VBox prefHeight="200.0" prefWidth="260.0">
+               <VBox fx:id="colourKeyVBox" minWidth="260.0" styleClass="card">
                   <children>
                      <Label styleClass="titleLabel" text="Colour Key" />
                   </children>
                </VBox>
-               <VBox prefHeight="200.0" prefWidth="260.0">
+               <VBox alignment="CENTER_LEFT" minWidth="260.0" styleClass="card">
                   <children>
                      <Label styleClass="titleLabel" text="General" />
+                     <Label fx:id="generalTimeLabel" styleClass="textLabel" text="Date : ..." />
+                     <Label fx:id="generalDateLabel" styleClass="textLabel" text="Time : ..." />
                   </children>
                </VBox>
-               <VBox prefHeight="200.0" prefWidth="260.0">
+               <VBox alignment="CENTER_LEFT" minWidth="260.0" styleClass="card">
                   <children>
                      <Label styleClass="titleLabel" text="Program" />
+                     <Label fx:id="programNumDeviceLabel" styleClass="textLabel" text="Num Devices : ..." />
+                     <Label fx:id="programNumEventsLabel" layoutX="10.0" layoutY="27.0" styleClass="textLabel" text="Num Events : ..." />
+                     <Label fx:id="programPingIntervalLabel" layoutX="10.0" layoutY="44.0" styleClass="textLabel" text="Ping Interval: ..." />
+                     <Label fx:id="programPingTimeoutLabel" layoutX="10.0" layoutY="61.0" styleClass="textLabel" text="Ping Timeout : ..." />
+                     <Label fx:id="programPacketsToSendLabel" layoutX="10.0" layoutY="78.0" styleClass="textLabel" text="Packets to send : ..." />
+                     <Label fx:id="programPacketsToRecciveLabel" layoutX="10.0" layoutY="95.0" styleClass="textLabel" text="Packets to reccive : ..." />
                   </children>
                </VBox>
             </children></FlowPane>
@@ -69,12 +77,12 @@
       <HBox spacing="5">
 
          <children>            
-            <Button fx:id="deviceLoadButton" onAction="#loadDevices" text="Load Devices" />
-            <Button fx:id="devicePrintButton" onAction="#printDevices" text="Print Devices" />
-            <Button fx:id="devicePingButton" onAction="#pingDevices" text="Ping Devices" />
+            <Button fx:id="deviceLoadButton" styleClass="bottomButton" onAction="#loadDevices" text="Load Devices" />
+            <Button fx:id="devicePrintButton" styleClass="bottomButton" onAction="#printDevices" text="Print Devices" />
+            <Button fx:id="devicePingButton" styleClass="bottomButton" onAction="#pingDevices" text="Ping Devices" />
 
-            <Button fx:id="eventLoadButton" onAction="#loadEvents" text="Load Events" />
-            <Button fx:id="eventPrintButton" onAction="#printEvents" text="Print Events" />
+            <Button fx:id="eventLoadButton" styleClass="bottomButton" onAction="#loadEvents" text="Load Events" />
+            <Button fx:id="eventPrintButton" styleClass="bottomButton" onAction="#printEvents" text="Print Events" />
          </children>
 
          <padding>

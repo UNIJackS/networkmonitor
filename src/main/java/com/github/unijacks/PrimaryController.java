@@ -6,6 +6,8 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -21,25 +23,28 @@ import java.util.Date;
 
 
 public class PrimaryController {
-    public final static boolean windows = false;
+    public final static boolean windows = true;
     //Global static varables
     public final static int UPDATE_PERIOD = 2; // Seconds
 
     //Global managers
     DeviceManager deviceManager = new DeviceManager();
     EventManager eventManager = new EventManager();
-    InfoManager infoManager = new InfoManager();
-
+    
     // Labels
-    @FXML Label infoHeaderLabel;
-    @FXML Label devicesHeaderLabel;
-    @FXML Label activityHeaderLabel;
+    @FXML Label generalTimeLabel;
+    @FXML Label generalDateLabel;
+    @FXML Label programNumDeviceLabel;
+    @FXML Label programNumEventsLabel;
+    @FXML Label programPingIntervalLabel;
+    @FXML Label programPingTimeoutLabel;
+    @FXML Label programPacketsToSendLabel;
+    @FXML Label programPacketsToRecciveLabel;
 
     // Panes
     @FXML BorderPane mainBorderPane;
     @FXML FlowPane devicesFlowPane;
     @FXML FlowPane eventsFlowPane;
-    @FXML FlowPane infoFlowPane;
 
     // Buttons 
     @FXML Button deviceLoadButton;
@@ -47,6 +52,9 @@ public class PrimaryController {
     @FXML Button devicePrintButton;
     @FXML Button eventLoadButton;
     @FXML Button eventPrintButton;
+
+    // Vbox
+    @FXML VBox colourKeyVBox;
 
 
     public void initialize(){
@@ -62,25 +70,27 @@ public class PrimaryController {
         System.out.println("Event manager flow pane loaded sucessfuly");
 
         System.out.println("Info manager flow pane loading ...");
-        infoManager.updateFlowPane(infoFlowPane,deviceManager,eventManager);
+        intializeInfo();
         System.out.println("Info manager flow pane loaded sucessfuly");
 
-        setButtonColor();
         startUpdateLoop();
         System.out.println("Intalised sucessfully");
-
     }
 
 
-    private void setButtonColor(){
-        CornerRadii buttonCornerRadii = new CornerRadii(5,5,0,0,false);
-        Background buttonBackground = new Background(new BackgroundFill(CustomStyle.BUTTON_GREY, buttonCornerRadii, Insets.EMPTY));
-        deviceLoadButton.setBackground(buttonBackground);
-        devicePingButton.setBackground(buttonBackground);
-        devicePrintButton.setBackground(buttonBackground);
+    private void intializeInfo(){
+        for(DeviceStatus.statusEnum currentEnum : DeviceStatus.statusEnum.values()){
+            DeviceStatus currentStatus = new DeviceStatus(currentEnum);
+            Label descriptionLabel = new Label(" : "+currentStatus.getDesc());
+            descriptionLabel.getStyleClass().add("textLabel");
+            Button statusIndicator = new Button("");
+            statusIndicator.setMinWidth(30);
+            statusIndicator.setMinHeight(30);
+            statusIndicator.setBackground(new Background(new BackgroundFill(currentStatus.getColor(), new CornerRadii(15), Insets.EMPTY)));
+            statusIndicator.getStyleClass().add("statusButton");
 
-        eventLoadButton.setBackground(buttonBackground);
-        eventPrintButton.setBackground(buttonBackground);
+            colourKeyVBox.getChildren().add(new HBox(statusIndicator,descriptionLabel));
+        }
     }
 
     
@@ -104,12 +114,30 @@ public class PrimaryController {
     //Updatse the time and date labels to the current time and date.
     @FXML
     private void update() throws IOException{
+        // Only updates the device flow pane if a status changes from the ping.
         pingDevices();
-        loadEvents();
+        if(deviceManager.checkForDeviceChanges()){deviceManager.updateFlowPane(devicesFlowPane);}
+        // Only updates the events flow pane if new events are loaded.
+        if(loadEvents()){eventManager.updateFlowPane(eventsFlowPane, deviceManager.getDevicesMap());}
+            
+        updateInfo();
+    }
 
-        deviceManager.updateFlowPane(devicesFlowPane);
-        eventManager.updateFlowPane(eventsFlowPane, deviceManager.getDevicesMap());
-        infoManager.updateFlowPane(infoFlowPane,deviceManager,eventManager);
+
+
+    @FXML
+    private void updateInfo(){
+        //General
+        Date currentDate = new Date();
+        generalTimeLabel.setText("Date : " + CustomStyle.JUST_DATE_FORMAT.format(currentDate));
+        generalDateLabel.setText("Time : " + CustomStyle.JUST_TIME_FORMAT.format(currentDate));
+        //Program
+        programNumDeviceLabel.setText("Devices : " + deviceManager.getNumberOfDevices());
+        programNumEventsLabel.setText("Events : " + eventManager.getNumberOfEvents());
+        programPingIntervalLabel.setText("Ping Interval : " + (Device.PING_INTERVAL/1000) + " sec");
+        programPingTimeoutLabel.setText("Ping Timeout : " + (Device.PING_TIMEOUT) + " sec");
+        programPacketsToSendLabel.setText("Packets to send : " + (Device.PACKETS_TO_SEND));
+        programPacketsToRecciveLabel.setText("Packets to reccive : " + (Device.PACKETS_TO_RECCIVE));
     }
 
 
@@ -128,11 +156,9 @@ public class PrimaryController {
     private void pingDevices() throws IOException {deviceManager.pingAll();}
 
     //---------------- Event Manager Methods ----------------
-    //Loads the events from the events directory.
+    // Loads the events from the events directory.
     @FXML
-    private void loadEvents() throws IOException {eventManager.loadFromFile();
-        
-    }
+    private boolean loadEvents() throws IOException {return eventManager.loadFromFile();}
     //Prints the loaded events
     @FXML
     private void printEvents() throws IOException {eventManager.printAll();}
