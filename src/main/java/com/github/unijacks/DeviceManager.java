@@ -20,6 +20,9 @@ public class DeviceManager {
     private Queue<Device> devicesQueue;
     private Map<String, Device> devicesMap;
 
+    private Queue<Device> devicesNotPingedQueue = new PriorityQueue<>();
+    private Map<Device, DeviceStatus.statusEnum> prevousStatusMap = new HashMap<>();
+
     /*
      * Loads all the devices and provices a way to manage them
      */
@@ -81,6 +84,7 @@ public class DeviceManager {
             devicesMap.put(newDevice.getStrIP(),newDevice);
         }
         linesInFileScanner.close();
+        System.out.println(this);
     }
 
     /*
@@ -97,13 +101,45 @@ public class DeviceManager {
      * Pings all the devices currently loaded.
      */
     public void pingAll() {
+        // This could occure if an attempt to ping all the devices 
+        if(devicesNotPingedQueue.size() == 0){
+            devicesNotPingedQueue = new PriorityQueue<>(devicesQueue);
+        }
+        while (!devicesNotPingedQueue.isEmpty()) {
+            Device currentDevice = devicesNotPingedQueue.poll();
+            // Ping returns true if a ping attempt is made.
+            // The device could not be pinged if the PING_INTERVAL has not elapsed since the last ping (cooldown).
+            boolean pingAttemptMade = currentDevice.ping(false);
+            // So if a device is pinged then the loop is broken.
+            // This leads to only one ping attempt being made per call.
+            // This is done to space out pings as they take quite a long time.
+            if(pingAttemptMade){break;}
+        }
+    }
+
+
+    // Checks if any status changes have occured since the last check.
+    public boolean checkForDeviceChanges(){
         Queue<Device> devicesCopy = new PriorityQueue<>(devicesQueue);
         while (!devicesCopy.isEmpty()) {
             Device currentDevice = devicesCopy.poll();
-            // Ping only returns true when it actually attempts to ping a device.
-            // The loop is broken when we actually attempt ping a device to space out the device pings.
-            if(currentDevice.ping(false)){break;}
+            if(currentDevice.needsUpdate()){
+                return true;
+            }
         }
+        return false;
+    }
+
+
+
+    public String toString() {
+        String output = "";
+        Queue<Device> devicesCopy = new PriorityQueue<>(devicesQueue);
+        while (!devicesCopy.isEmpty()) {
+            Device currentDevice = devicesCopy.poll();
+            output += currentDevice + " \n";
+        }
+        return output;
     }
 
 }
