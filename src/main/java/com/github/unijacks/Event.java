@@ -145,9 +145,13 @@ public class Event implements Comparable<Event>{
             deviceInvolved = new Device(null,null,null);
         }
 
-        Label nameLabel = CustomStyle.cardTextLabel(deviceInvolved.getName());
-        Label typeLabel = CustomStyle.cardTextLabel(type.getDesc());
-        Label dateLabel = CustomStyle.cardTextLabel(CustomStyle.HUMAN_DATE_FORMAT.format(dateOccurred));
+        Label nameLabel = new Label(deviceInvolved.getName());
+        Label typeLabel = new Label(type.getDesc());
+        Label dateLabel = new Label(CustomStyle.HUMAN_DATE_FORMAT.format(dateOccurred));
+
+        nameLabel.getStyleClass().add("textLabel");
+        typeLabel.getStyleClass().add("textLabel");
+        dateLabel.getStyleClass().add("textLabel");
    
         VBox leftSide = new VBox(nameLabel,typeLabel,dateLabel);
         leftSide.setAlignment(Pos.CENTER);

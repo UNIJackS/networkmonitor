@@ -21,7 +21,7 @@ import java.util.Date;
 
 
 public class PrimaryController {
-    public final static boolean windows = true;
+    public final static boolean windows = false;
     //Global static varables
     public final static int UPDATE_PERIOD = 2; // Seconds
 
@@ -65,20 +65,12 @@ public class PrimaryController {
         infoManager.updateFlowPane(infoFlowPane,deviceManager,eventManager);
         System.out.println("Info manager flow pane loaded sucessfuly");
 
-
-        setFonts();
-        setTextColor();
         setButtonColor();
         startUpdateLoop();
         System.out.println("Intalised sucessfully");
 
     }
 
-    private void setTextColor(){
-        infoHeaderLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
-        devicesHeaderLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
-        activityHeaderLabel.setTextFill(CustomStyle.MAIN_TEXT_WHITE);
-    }
 
     private void setButtonColor(){
         CornerRadii buttonCornerRadii = new CornerRadii(5,5,0,0,false);
@@ -91,12 +83,6 @@ public class PrimaryController {
         eventPrintButton.setBackground(buttonBackground);
     }
 
-    //Sets the font size of the headers and info labels
-    private void setFonts(){
-        activityHeaderLabel.setFont(CustomStyle.Header_FONT);
-        devicesHeaderLabel.setFont(CustomStyle.Header_FONT);
-        infoHeaderLabel.setFont(CustomStyle.Header_FONT);
-    }
     
     // Pings devices and updates the time every UPDATE_PERIOD seconds.
     private void startUpdateLoop(){

@@ -171,7 +171,8 @@ public class Device implements Comparable<Device> {
      */
     public VBox getCard() {
         Button statusIndicator = CustomStyle.cardColourButton("", status.getColor(), 30, 30);
-        Label nameLabel = CustomStyle.cardTextLabel(name);
+        Label nameLabel = new Label(name);
+        nameLabel.getStyleClass().add("textLabel");
         HBox nameLabelBox = new HBox(nameLabel);
         nameLabelBox.setAlignment(Pos.CENTER);
         nameLabelBox.setMinWidth(90);
@@ -181,11 +182,14 @@ public class Device implements Comparable<Device> {
         topRow.setAlignment(Pos.CENTER_LEFT);
 
 
-        Label ipLabel = CustomStyle.cardTextLabel(strIP);
+        Label ipLabel = new Label(strIP);
         Label lastPingDateLabel;
         // Makes sure last ping date is not null
-        if (lastPingDate != null) { lastPingDateLabel = CustomStyle.cardTextLabel(CustomStyle.JUST_TIME_FORMAT.format(lastPingDate));} 
-        else {lastPingDateLabel = CustomStyle.cardTextLabel("Last Ping : loading");}
+        if (lastPingDate != null) { lastPingDateLabel = new Label(CustomStyle.JUST_TIME_FORMAT.format(lastPingDate));} 
+        else {lastPingDateLabel = new Label("Last Ping : loading");}
+
+        ipLabel.getStyleClass().add("textLabel");
+        lastPingDateLabel.getStyleClass().add("textLabel");
 
         HBox bottomRow = new HBox(getActionButton(), getPingButton());
         bottomRow.setSpacing(10);

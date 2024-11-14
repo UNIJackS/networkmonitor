@@ -27,12 +27,6 @@ public class CustomStyle {
     public final static SimpleDateFormat JUST_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");  
     public final static SimpleDateFormat JUST_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");  
 
-    //Fonts
-    public final static Font Header_FONT = new Font(60);
-    public final static Font INFO_FONT = new Font(20);
-    public final static Font CARD_TITLE_FONT = new Font(30);
-    public final static Font CARD_INFO_FONT = new Font(20);
-
 
     //Colours 
     public final static Color BACK_GROUND_GREY = Color.web("2d3436"); // Dracula Orchid - Grey
@@ -91,14 +85,12 @@ public class CustomStyle {
 
     public static Label cardTextLabel(String text){
         Label output = new Label(text);
-        output.setFont(CARD_INFO_FONT);
         output.setTextFill(MAIN_TEXT_WHITE);
         return output;
     }
 
     public static Label cardTitleLabel(String text){
         Label output = new Label(text);
-        output.setFont(CARD_TITLE_FONT);
         output.setTextFill(MAIN_TEXT_WHITE);
         output.setUnderline(true);
         return output;

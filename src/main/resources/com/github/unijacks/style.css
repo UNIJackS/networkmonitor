@@ -1,0 +1,20 @@
+.label{
+    -fx-text-fill: #ffffff;
+}
+   
+.headerLabel{
+    -fx-font-size: 60;
+    -fx-underline: true;
+}
+
+.titleLabel{
+    -fx-font-size: 30;
+}
+
+.textLabel{
+    -fx-font-size: 20;
+}
+
+.button{
+
+}
