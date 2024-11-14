@@ -28,6 +28,8 @@ public class DeviceStatus {
     private String strIP;
 
     public DeviceStatus(String strIP){
+        changeStatus(status,true); //Sets the colour and other values for the loading state.
+
         if(!verifyIP(strIP)){
             changeStatus(statusEnum.INVALIDIP,false);
         }else{
