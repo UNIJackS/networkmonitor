@@ -1,3 +1,8 @@
+.primaryBackground{
+    -fx-background-color: #2d3436; /* Dracula Orchid - dark Grey*/
+}
+
+
 .label{
     -fx-text-fill: #ffffff;
 }
@@ -17,7 +22,6 @@
 }
 
 .card{
-    -fx-background-color: #2d3436;
     -fx-background-radius: 15;
 
 
@@ -30,16 +34,59 @@
     -fx-padding: 0 15 15 15;
 }
 
-.statusButton{    
-    -fx-border-radius: 15;
-    -fx-border-width: 3;
+.button{   
+    -fx-background-radius: 15;
 
     -fx-border-color: #ffffff;
     -fx-border-radius: 15;
     -fx-border-width: 3;
+
+    -fx-text-fill: #2d3436;
+    -fx-font-size: 12;
+    -fx-font-weight: bold
 }
 
-.bottomButton{
-    -fx-background-color: #ffffff;
-    -fx-background-radius: 5 5 0 0;
+/* https://flatuicolors.com/palette/us */
+
+/* Status Colors */
+.statusOnline{
+    -fx-background-color: #00b894; /* Mint Leaf - dark green*/
+}
+.statusUnreachable{
+    -fx-background-color: #fdcb6e; /* Bright Yarrow - Yellow*/
+}
+.statusOffline{
+    -fx-background-color: #e17055; /* OrangeVille - Orange*/
+}
+.statusLoading{
+    -fx-background-color: #2d3436; /* Dracula Orchid - dark Grey*/
+}
+.statusInvalidIP{
+    -fx-background-color: #0984e3; /* Electron Blue - dark blue*/
+}
+
+/* Event Colors */
+.eventMagicPacket{
+    -fx-background-color: #6c5ce7; /* Exodius Fruit - purple*/
+}
+.eventOnline{
+    -fx-background-color: #00b894; /* Mint Leaf - dark green*/
+}
+.eventOffline{
+    -fx-background-color: #e17055; /* OrangeVille - Orange*/
+}
+
+
+
+
+.testing1{
+    -fx-background-color: #0984e3;
+}
+
+.testing2{
+    -fx-background-color: #00b894;
+}
+
+.testing3{
+    -fx-background-color: #e17055;
 }
