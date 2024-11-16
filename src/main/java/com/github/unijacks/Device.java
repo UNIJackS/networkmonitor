@@ -6,47 +6,38 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
+
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.TilePane;
-import javafx.scene.paint.Color;
+
 import javafx.scene.control.Button;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 
-import java.util.NoSuchElementException;
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Date;
 import java.util.Scanner;
 
-import com.github.unijacks.DeviceStatus.statusEnum;
-
 import java.lang.String;
+import java.text.SimpleDateFormat;
 
 /*
  * Represents a single device. Uniquily identifable by their IP.
  */
 public class Device implements Comparable<Device>{
+    public final static SimpleDateFormat JUST_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");  
+
     public final static int PING_INTERVAL = 15000;
     public final static int PACKETS_TO_SEND = 2;
     public final static int PACKETS_TO_RECCIVE = 2;
     public final static int PING_TIMEOUT = 1;
 
-
     public final static String DEFAULT_STR_IP = "IP Not Set";
     public final static int DEFAULT_INT_IP = 000000000000;
 
-    private String strIP = DEFAULT_STR_IP; // Required
+    private String strIP = DEFAULT_STR_IP;
     private int intIP = DEFAULT_INT_IP;
     private String name = "Name Not Set";
     private String macAdress = "MAC address Not Set";
@@ -126,13 +117,23 @@ public class Device implements Comparable<Device>{
         needUpdate = false;
         return prevousNeedUpdate;
     }
+
+
+    private Button cardButton(String text ,double width,double height ){
+        Button output = new Button(text);
+        output.setMinHeight(height);
+        output.setMaxHeight(height);
+        output.setMinWidth(width);
+        output.setMaxWidth(width);
+        return output;
+    }
     
     /*
      * Retruns a button with the approprate method bound to it for the device status.
      */
     private Button getActionButton() {
         // Creates a button of the correct style
-        Button action = CustomStyle.cardColourButton(status.getAction(), CustomStyle.MAIN_TEXT_WHITE, 70, 30);
+        Button action = cardButton(status.getAction(), 70, 30);
         // Assigns the button the correct method.
         EventHandler<ActionEvent> actionEvent = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
@@ -160,7 +161,7 @@ public class Device implements Comparable<Device>{
      */
     private Button getPingButton() {
         //Creates a button of the correct style.
-        Button pingButton = CustomStyle.cardColourButton("Ping", CustomStyle.MAIN_TEXT_WHITE, 70, 30);
+        Button pingButton = cardButton("Ping", 70, 30);
         //Binds the ping method to it.
         EventHandler<ActionEvent> actionEvent = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
@@ -183,7 +184,7 @@ public class Device implements Comparable<Device>{
      *     c = status colour
      */
     public VBox getCard() {
-        Button statusIndicator = CustomStyle.cardColourButton("", status.getColor(), 30, 30);
+        Button statusIndicator = status.getStatusEnum().getStatusIndicator(30,30);
         Label nameLabel = new Label(name);
         nameLabel.getStyleClass().add("textLabel");
         HBox nameLabelBox = new HBox(nameLabel);
@@ -198,7 +199,7 @@ public class Device implements Comparable<Device>{
         Label ipLabel = new Label(strIP);
         Label lastPingDateLabel;
         // Makes sure last ping date is not null
-        if (lastPingDate != null) { lastPingDateLabel = new Label(CustomStyle.JUST_TIME_FORMAT.format(lastPingDate));} 
+        if (lastPingDate != null) { lastPingDateLabel = new Label(JUST_TIME_FORMAT.format(lastPingDate));} 
         else {lastPingDateLabel = new Label("Last Ping : loading");}
 
         ipLabel.getStyleClass().add("textLabel");
@@ -207,7 +208,13 @@ public class Device implements Comparable<Device>{
         HBox bottomRow = new HBox(getActionButton(), getPingButton());
         bottomRow.setSpacing(10);
         bottomRow.setAlignment(Pos.CENTER);
-        VBox output = CustomStyle.cardBox(new VBox(topRow, ipLabel,lastPingDateLabel,bottomRow), 195, 145);
+
+        VBox output = new VBox(topRow, ipLabel,lastPingDateLabel,bottomRow); 
+
+        output.setPrefWidth(202);
+        output.setPrefHeight(145);
+
+        output.getStyleClass().add("card");
 
         output.setAlignment(Pos.CENTER);
         output.setSpacing(0);
@@ -312,12 +319,10 @@ public class Device implements Comparable<Device>{
      */
     @FXML
     public boolean ping(boolean ignoreCoolDown) {
-        System.out.println("Ping called :  " + strIP);
         if (status.isIPInvalid()) {return false;}
         // If the time since the last ping is lesss than the interval and we do care about the cool down.
         if (!checkLastPingDate() && !ignoreCoolDown){return false;}
 
-        System.out.println("Ping exacuted : " + strIP);
         needUpdate = true;
         lastPingDate = new Date();
         // Sends the ping
@@ -335,6 +340,7 @@ public class Device implements Comparable<Device>{
     public void wake() {
         // send magic packet
         System.out.println("Magic packet sent to : " + strIP);
+
     }
 
     @FXML

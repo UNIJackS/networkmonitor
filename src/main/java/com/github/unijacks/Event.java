@@ -3,7 +3,6 @@ package com.github.unijacks;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;  
 import java.util.Date;  
-import java.util.Calendar;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,25 +13,14 @@ import java.io.IOException;
 import java.io.BufferedWriter;
 
 import java.util.Map;
-import java.util.HashMap;
 
-
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
+
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Path;
+
 
 /*
  * name : deviceName eventType    dd MM yyyy HH mm ss
@@ -43,20 +31,31 @@ public class Event implements Comparable<Event>{
     private Date dateOccurred;
     private String ip; 
 
-    public enum eventType {
-        MAGIC_PACKET_SENT("Magic packet sent",CustomStyle.MAGIC_PACKET_PURPLE)
-        , WENT_OFFLINE("Device went offline",CustomStyle.OFFLINE_ORANGE)
-        , CAME_ONLINE("Device came online",CustomStyle.ONLINE_GREEN);
+    public final static SimpleDateFormat HUMAN_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
+    public final static SimpleDateFormat FILE_NAME_DATE_FORMAT = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
 
-        private Color color;
+
+    public enum eventType {
+        MAGIC_PACKET_SENT("eventMagicPacket","Magic packet sent")
+        , WENT_OFFLINE("eventOffline","Device went offline")
+        , CAME_ONLINE("eventOnline","Device came online");
+
+        private String styleClassString; 
         private String description;
-        eventType(String description, Color color) {
+        eventType( String styleClassString,String description) {
             this.description=description;
-            this.color=color;
+            this.styleClassString=styleClassString;
         }
 
         public String getDesc() {return description;}
-        public Color getColor() {return color;}
+
+        public Button getTypeIndicator(double width, double height ){
+            Button statusIndicator = new Button("");
+            statusIndicator.setMinWidth(width);
+            statusIndicator.setMinHeight(height);
+            statusIndicator.getStyleClass().add(styleClassString);
+            return statusIndicator;
+        }
     }
 
     //Creates an event from provided data and saves it to a file
@@ -92,7 +91,7 @@ public class Event implements Comparable<Event>{
     public Date parseDateSafe(String strDateOccured){
         //Attempts to parse the rest of the scanner into a date.
         try {
-            return CustomStyle.HUMAN_DATE_FORMAT.parse(strDateOccured);
+            return HUMAN_DATE_FORMAT.parse(strDateOccured);
         } catch (ParseException e) {
             e.printStackTrace();
             System.out.println("null date :" + strDateOccured);
@@ -129,12 +128,14 @@ public class Event implements Comparable<Event>{
     }
 
     public String getFileName(){
-        return "ip=" +ip+"_type=" + type.name()+"_dateOccurred=" + CustomStyle.FILE_NAME_DATE_FORMAT.format(dateOccurred);
+        return "ip=" +ip+"_type=" + type.name()+"_dateOccurred=" + FILE_NAME_DATE_FORMAT.format(dateOccurred);
     }
 
     public String toString() {
-        return "ip|" +ip+"|type|" + type.name()+"|dateOccurred|" + CustomStyle.HUMAN_DATE_FORMAT.format(dateOccurred);
+        return "ip|" +ip+"|type|" + type.name()+"|dateOccurred|" +HUMAN_DATE_FORMAT.format(dateOccurred);
     }
+
+
 
 
     public HBox getCard(Map<String,Device> devicesMap){
@@ -147,7 +148,7 @@ public class Event implements Comparable<Event>{
 
         Label nameLabel = new Label(deviceInvolved.getName());
         Label typeLabel = new Label(type.getDesc());
-        Label dateLabel = new Label(CustomStyle.HUMAN_DATE_FORMAT.format(dateOccurred));
+        Label dateLabel = new Label(HUMAN_DATE_FORMAT.format(dateOccurred));
 
         nameLabel.getStyleClass().add("textLabel");
         typeLabel.getStyleClass().add("textLabel");
@@ -157,9 +158,14 @@ public class Event implements Comparable<Event>{
         leftSide.setAlignment(Pos.CENTER);
         leftSide.setMinWidth(210);
         
-        Button rightSide = CustomStyle.cardColourButton("", type.getColor(),30,75);
+        Button rightSide = type.getTypeIndicator(30,75);
         
-        HBox output = CustomStyle.cardBox(new HBox(leftSide,rightSide), 260, 105); 
+        HBox output = new HBox(leftSide,rightSide); 
+
+        output.setMaxWidth(260);
+        output.setMaxHeight(105);
+
+        output.getStyleClass().add("card");
         
         output.setAlignment(Pos.CENTER_LEFT);
         output.setSpacing(5);

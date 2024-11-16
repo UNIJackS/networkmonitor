@@ -2,17 +2,12 @@ package com.github.unijacks;
 
 import java.io.IOException;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.text.Font;
 import javafx.util.Duration;
 
 import javafx.animation.KeyFrame;
@@ -23,6 +18,9 @@ import java.util.Date;
 
 
 public class PrimaryController {
+    public final static SimpleDateFormat JUST_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");  
+    public final static SimpleDateFormat JUST_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");  
+
     public final static boolean windows = true;
     //Global static varables
     public final static int UPDATE_PERIOD = 2; // Seconds
@@ -59,8 +57,6 @@ public class PrimaryController {
 
     public void initialize(){
         System.out.println("Intalising ... ");
-
-        mainBorderPane.setBackground(new Background(new BackgroundFill(CustomStyle.BACK_GROUND_GREY, CornerRadii.EMPTY, Insets.EMPTY)));
         System.out.println("Device manager flow pane loading ...");
         deviceManager.updateFlowPane(devicesFlowPane);
         System.out.println("Device manager flow pane loaded sucessfuly");
@@ -80,15 +76,9 @@ public class PrimaryController {
 
     private void intializeInfo(){
         for(DeviceStatus.statusEnum currentEnum : DeviceStatus.statusEnum.values()){
-            DeviceStatus currentStatus = new DeviceStatus(currentEnum);
-            Label descriptionLabel = new Label(" : "+currentStatus.getDesc());
+            Label descriptionLabel = new Label(" : "+currentEnum.getEnumDescription());
             descriptionLabel.getStyleClass().add("textLabel");
-            Button statusIndicator = new Button("");
-            statusIndicator.setMinWidth(30);
-            statusIndicator.setMinHeight(30);
-            statusIndicator.setBackground(new Background(new BackgroundFill(currentStatus.getColor(), new CornerRadii(15), Insets.EMPTY)));
-            statusIndicator.getStyleClass().add("statusButton");
-
+            Button statusIndicator = currentEnum.getStatusIndicator(30,30);
             colourKeyVBox.getChildren().add(new HBox(statusIndicator,descriptionLabel));
         }
     }
@@ -129,8 +119,8 @@ public class PrimaryController {
     private void updateInfo(){
         //General
         Date currentDate = new Date();
-        generalTimeLabel.setText("Date : " + CustomStyle.JUST_DATE_FORMAT.format(currentDate));
-        generalDateLabel.setText("Time : " + CustomStyle.JUST_TIME_FORMAT.format(currentDate));
+        generalTimeLabel.setText("Date : " + JUST_DATE_FORMAT.format(currentDate));
+        generalDateLabel.setText("Time : " + JUST_TIME_FORMAT.format(currentDate));
         //Program
         programNumDeviceLabel.setText("Devices : " + deviceManager.getNumberOfDevices());
         programNumEventsLabel.setText("Events : " + eventManager.getNumberOfEvents());
