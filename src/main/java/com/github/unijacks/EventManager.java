@@ -4,9 +4,6 @@ import java.util.Queue;
 import java.util.PriorityQueue;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-
-import java.util.Scanner;
 
 import javafx.scene.layout.FlowPane;
 

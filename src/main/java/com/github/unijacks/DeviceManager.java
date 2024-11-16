@@ -1,7 +1,4 @@
-package com.github.unijacks;
-
-
-import java.util.Queue;
+package com.github.unijacks;import java.util.Queue;
 import java.util.PriorityQueue;
 import java.util.Map;
 import java.util.HashMap;
@@ -21,7 +18,6 @@ public class DeviceManager {
     private Map<String, Device> devicesMap;
 
     private Queue<Device> devicesNotPingedQueue = new PriorityQueue<>();
-    private Map<Device, DeviceStatus.statusEnum> prevousStatusMap = new HashMap<>();
 
     /*
      * Loads all the devices and provices a way to manage them
