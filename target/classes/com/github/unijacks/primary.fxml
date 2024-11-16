@@ -8,9 +8,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="mainBorderPane" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.unijacks.PrimaryController">
+<BorderPane fx:id="mainBorderPane" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.unijacks.PrimaryController" styleClass="primaryBackground">
    <left>
-      <VBox alignment="TOP_CENTER" prefWidth="300">
+      <VBox alignment="TOP_CENTER" maxWidth="300.0" prefWidth="300">
          <Label fx:id="infoHeaderLabel" alignment="TOP_LEFT" styleClass="headerLabel" text="Info" underline="True" />
          <FlowPane fx:id="infoFlowPane" hgap="20" prefWidth="240" vgap="20">
             <children>
@@ -44,20 +44,23 @@
       <padding>
         <Insets bottom="0.0" left="20.0" right="20.0" top="0.0" />
       </padding>
+
+
    </left>
 
 
    <right>
-      <VBox alignment="TOP_CENTER" prefWidth="300">
+      <VBox alignment="TOP_CENTER" maxWidth="300.0" prefWidth="300">
          <children>            
             <Label fx:id="activityHeaderLabel" alignment="CENTER" styleClass="headerLabel" text="Activity" underline="True" />
             <FlowPane fx:id="eventsFlowPane" hgap="20" prefWidth="240" vgap="20" />
          </children>
-         
-         <padding>
-            <Insets bottom="0.0" left="20.0" right="20.0" top="0.0" />
-         </padding>
       </VBox>
+
+      
+      <padding>
+        <Insets bottom="0.0" left="20.0" right="20.0" top="0.0" />
+      </padding>
    </right>
 
    <center>
@@ -67,9 +70,7 @@
             <FlowPane fx:id="devicesFlowPane" hgap="20" vgap="20" />
          </children>
          
-         <padding>
-            <Insets bottom="0.0" left="10.0" right="10.0" top="0.0" />
-         </padding>
+
       </VBox>
    </center>
 
@@ -77,12 +78,12 @@
       <HBox spacing="5">
 
          <children>            
-            <Button fx:id="deviceLoadButton" styleClass="bottomButton" onAction="#loadDevices" text="Load Devices" />
-            <Button fx:id="devicePrintButton" styleClass="bottomButton" onAction="#printDevices" text="Print Devices" />
-            <Button fx:id="devicePingButton" styleClass="bottomButton" onAction="#pingDevices" text="Ping Devices" />
+            <Button fx:id="deviceLoadButton" onAction="#loadDevices" text="Load Devices" />
+            <Button fx:id="devicePrintButton" onAction="#printDevices" text="Print Devices" />
+            <Button fx:id="devicePingButton" onAction="#pingDevices" text="Ping Devices" />
 
-            <Button fx:id="eventLoadButton" styleClass="bottomButton" onAction="#loadEvents" text="Load Events" />
-            <Button fx:id="eventPrintButton" styleClass="bottomButton" onAction="#printEvents" text="Print Events" />
+            <Button fx:id="eventLoadButton" onAction="#loadEvents" text="Load Events" />
+            <Button fx:id="eventPrintButton" onAction="#printEvents" text="Print Events" />
          </children>
 
          <padding>
