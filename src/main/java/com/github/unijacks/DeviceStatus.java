@@ -1,7 +1,6 @@
 package com.github.unijacks;
 
-import javafx.collections.ListChangeListener.Change;
-import javafx.scene.paint.Color;
+import javafx.scene.control.Button;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,22 +13,41 @@ import java.util.Scanner;
  */
 public class DeviceStatus {
     public static enum statusEnum {
-        ONLINE          //The device responded to the last ping.
-        , UNREACHABLE   //The device missed the last ping.
-        , OFFLINE       //The device missed the last 2 or more pings.
-        , LOADING       //The device has not been pinged.
-        , INVALIDIP;    //The devices ip is invalid.
+        ONLINE("statusOnline","Online","SSH")                     //The device responded to the last ping.
+        , UNREACHABLE("statusUnreachable","Unreachable","Wake")  //The device missed the last ping.
+        , OFFLINE("statusOffline","Offline","Wake")              //The device missed the last 2 or more pings.
+        , LOADING("statusLoading","Loading...","N/A")              //The device has not been pinged.
+        , INVALIDIP("statusInvalidIP","Invalid IP","N/A");        //The devices ip is invalid.
+
+        private String styleClassString; 
+        private String description; //The String used for the name on the event card
+        private String action;      //The String used as the text on the action button
+
+        private statusEnum(String styleClassString, String description,String action){
+            this.styleClassString = styleClassString;
+            this.description = description;
+            this.action = action;
+        }
+
+        public String getEnumColor(){return styleClassString;}
+        public String getEnumDescription(){return description;}
+        public String getEnumAction(){return action;}
+
+
+        public Button getStatusIndicator(double width, double height ){
+            Button statusIndicator = new Button("");
+            statusIndicator.setMinWidth(width);
+            statusIndicator.setMinHeight(height);
+            statusIndicator.getStyleClass().add(styleClassString);
+            statusIndicator.getStyleClass().add("statusButton");
+            return statusIndicator;
+        }
     }
 
     private statusEnum status = statusEnum.LOADING;
-    private Color color;
-    private String description;
-    private String action;
-    private String strIP;
+    private String strIP = Device.DEFAULT_STR_IP;
 
     public DeviceStatus(String strIP){
-        changeStatus(status,true); //Sets the colour and other values for the loading state.
-
         if(!verifyIP(strIP)){
             changeStatus(statusEnum.INVALIDIP,false);
         }else{
@@ -37,15 +55,9 @@ public class DeviceStatus {
         }
     }
 
-    public DeviceStatus(statusEnum status){
-        changeStatus(status,true);
-    }
-
-    public String getAction(){return action;}
-    public Color getColor(){return color;}
-    public String getDesc(){return description;}
+    public String getDesc(){return status.getEnumDescription();}
+    public String getAction(){return status.getEnumAction();}
     public statusEnum getStatusEnum(){return status;}
-
     public boolean isIPInvalid(){return status == statusEnum.INVALIDIP;}
 
     public void unsucessfulPing(){
@@ -79,38 +91,23 @@ public class DeviceStatus {
             case ONLINE:
                 if(status != statusEnum.ONLINE && !noEvents){new Event(Event.eventType.CAME_ONLINE,new Date(),strIP);}
                 this.status = newStatus;
-                this.color = CustomStyle.ONLINE_GREEN;
-                this.description = "Online";
-                this.action = "SSH";
                 break;
 
             case UNREACHABLE:
                 this.status = newStatus;
-                this.color = CustomStyle.UNREACHABLE_YELLOW;
-                this.description = "Unreachable";
-                this.action = "Wake";
                 break;
 
             case OFFLINE:
                 if(status != statusEnum.OFFLINE && !noEvents){new Event(Event.eventType.WENT_OFFLINE,new Date(),strIP);}
                 this.status = newStatus;
-                this.color = CustomStyle.OFFLINE_ORANGE;
-                this.description = "Offline";
-                this.action = "Wake";
                 break;
 
             case LOADING:
                 this.status = newStatus;
-                this.color = CustomStyle.LOADING_GREY;
-                this.description = "Loading...";
-                this.action = "N/A";
                 break;
 
             case INVALIDIP:
                 this.status = newStatus;
-                this.color = CustomStyle.INVALID_IP_PINK;
-                this.description = "Invalid IP";
-                this.action = "N/A";
                 break;
         
             default:
@@ -150,6 +147,8 @@ public class DeviceStatus {
         }
         return true;
     }
+
+
 
     
 }
